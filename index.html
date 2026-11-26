@@ -883,12 +883,12 @@ document.addEventListener('visibilitychange',()=>{
 /* ================= MURAL DE RECADOS (Supabase) =================
    Cole aqui os dados do seu projeto Supabase (Project Settings → API):
    URL  = Project URL            KEY = chave "anon public"            */
-const MURAL={URL:'', KEY:''};
+const MURAL={URL:'https://prvfhuqhzlvzwlqpkklo.supabase.co', KEY:'sb_publishable_G9ZYXPh5aV28Z--NTFjIBA_3H8PlVAQ'};
 const POR_PAGINA=6;
 /* =============================================================== */
 const $=id=>document.getElementById(id);
 const ok=MURAL.URL&&MURAL.KEY;
-const H=()=>({'apikey':MURAL.KEY,'Authorization':'Bearer '+MURAL.KEY,'Content-Type':'application/json'});
+const H=()=>Object.assign({'apikey':MURAL.KEY,'Content-Type':'application/json'},MURAL.KEY.startsWith('eyJ')?{'Authorization':'Bearer '+MURAL.KEY}:{});
 let offset=0,carregado=false,carregando=false;
 $('mfaixa').innerHTML+=FAIXAS.map(f=>`<option>${f.nome}</option>`).join('');
 const giro=()=>((Math.random()*2.4-1.2).toFixed(2))+'deg';
