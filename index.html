@@ -723,7 +723,15 @@ const DURACAO=10, VOLUME=.85, FADE=350;
 /* ===== Som ambiente da página toda (loop com fade) =====
    AMB_VOLUME = volume do ambiente (0 a 1). AMB_FADE = segundos do fade de entrada/saída. */
 const AMB_ARQ='audio/ambiente.mp3', AMB_VOLUME=.30, AMB_FADE=2.5, AMB_CRUZA=3;
-const amb={ctx:null,buf:null,master:null,on:false,abaixado:false,prox:null,fontes:[],carregando:null,
+/* No celular o ambiente toca por um <audio> comum (o mesmo jeito das prévias), com o volume de 30% já embutido no arquivo */
+const CELULAR=matchMedia('(hover:none)').matches||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const ambCel={el:null,on:false,abaixado:false,
+  destrava(){if(!this.el){this.el=new Audio('audio/ambiente-cel.mp3');this.el.loop=true;this.el.preload='auto';this.el.setAttribute('playsinline','')}},
+  liga(){this.destrava();this.on=true;if(!this.abaixado)this.el.play().catch(()=>{})},
+  desliga(){this.on=false;if(this.el)this.el.pause()},
+  nivel(){},get ctx(){return this.el},
+  abaixa(sim){this.abaixado=sim;if(!this.el||!this.on)return;if(sim)this.el.pause();else this.el.play().catch(()=>{})}};
+const ambPc={ctx:null,buf:null,master:null,on:false,abaixado:false,prox:null,fontes:[],carregando:null,
   // precisa rodar DENTRO do clique/toque: cria e destrava o áudio do navegador
   destrava(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
     try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){} // iPhone: toca mesmo no modo silencioso
@@ -745,6 +753,7 @@ const amb={ctx:null,buf:null,master:null,on:false,abaixado:false,prox:null,fonte
   desliga(){this.on=false;if(!this.ctx)return;this.nivel(0,1.2);clearTimeout(this.prox);const fs=this.fontes.slice();this.fontes=[];
     setTimeout(()=>{if(!this.on)fs.forEach(s=>{try{s.stop()}catch(e){}})},1300)},
   abaixa(sim){this.abaixado=sim;if(this.on&&this.buf)this.nivel(sim?0:AMB_VOLUME,sim?.4:1.8)}};
+const amb=CELULAR?ambCel:ambPc;
 const $=id=>document.getElementById(id),btn=$('som');
 let ligado=false,atual=null,timer=null;
 
@@ -764,7 +773,9 @@ btn.addEventListener('click',()=>{ligado=!ligado;mostra();if(ligado){amb.destrav
 // se o som já estava ligado na visita anterior, o ambiente começa no primeiro clique/toque/tecla (regra dos navegadores)
 const destrava=e=>{if(e.target.closest&&e.target.closest('#som'))return;if(ligado){amb.destrava();amb.liga()}['pointerdown','keydown'].forEach(t=>removeEventListener(t,destrava,true))};
 ['pointerdown','keydown'].forEach(t=>addEventListener(t,destrava,true));
-['pointerdown','touchend','keydown'].forEach(t=>addEventListener(t,()=>{if(ligado&&amb.ctx&&amb.ctx.state!=='running')amb.ctx.resume().catch(()=>{})},true));
+['pointerdown','touchend','keydown'].forEach(t=>addEventListener(t,()=>{if(!ligado)return;
+  if(CELULAR){if(amb.on&&!amb.abaixado&&amb.el&&amb.el.paused)amb.el.play().catch(()=>{})}
+  else if(amb.ctx&&amb.ctx.state!=='running')amb.ctx.resume().catch(()=>{})},true));
 mostra();
 const sg=$('signs'),hover=matchMedia('(hover:hover) and (min-width:601px)');
 sg.addEventListener('mouseover',e=>{if(!hover.matches)return;const s=e.target.closest('.sign');if(s)toca(+s.dataset.i,s)});
@@ -776,7 +787,9 @@ sg.addEventListener('click',e=>{if(hover.matches)return;const s=e.target.closest
   setTimeout(()=>{s.classList.contains('ativa')?toca(+s.dataset.i,s):para()},0)});
 document.getElementById('sheet').querySelector('.x').addEventListener('click',para);
 addEventListener('hashchange',para);
-document.addEventListener('visibilitychange',()=>{if(document.hidden){para();if(amb.on&&amb.ctx)amb.nivel(0,.8)}else if(amb.on&&amb.ctx){amb.ctx.resume();amb.abaixa(false)}});
+document.addEventListener('visibilitychange',()=>{
+  if(CELULAR){if(document.hidden){para();if(amb.el)amb.el.pause()}else if(amb.on)amb.abaixa(false);return}
+  if(document.hidden){para();if(amb.on&&amb.ctx)amb.nivel(0,.8)}else if(amb.on&&amb.ctx){amb.ctx.resume();amb.abaixa(false)}});
 }
 </script>
 </body>
