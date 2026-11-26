@@ -653,7 +653,7 @@ m.querySelectorAll('.shgrid button').forEach(b=>b.addEventListener('click',()=>{
 const DURACAO=10, VOLUME=.85, FADE=350;
 /* ===== Som ambiente da página toda (loop com fade) =====
    AMB_VOLUME = volume do ambiente (0 a 1). AMB_FADE = segundos do fade de entrada/saída. */
-const AMB_ARQ='audio/ambiente.mp3', AMB_VOLUME=.45, AMB_FADE=2.5, AMB_CRUZA=3;
+const AMB_ARQ='audio/ambiente.mp3', AMB_VOLUME=.30, AMB_FADE=2.5, AMB_CRUZA=3;
 const amb={ctx:null,buf:null,master:null,on:false,abaixado:false,prox:null,fontes:[],carregando:null,
   async prepara(){if(this.buf)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
     if(!this.ctx){this.ctx=new AC();this.master=this.ctx.createGain();this.master.gain.value=0;this.master.connect(this.ctx.destination)}
