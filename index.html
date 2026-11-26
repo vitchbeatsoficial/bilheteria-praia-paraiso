@@ -724,6 +724,13 @@ const DURACAO=10, VOLUME=.85, FADE=350;
    AMB_VOLUME = volume do ambiente (0 a 1). AMB_FADE = segundos do fade de entrada/saída. */
 const AMB_ARQ='audio/ambiente.mp3', AMB_VOLUME=.30, AMB_FADE=2.5, AMB_CRUZA=3;
 const amb={ctx:null,buf:null,master:null,on:false,abaixado:false,prox:null,fontes:[],carregando:null,
+  // precisa rodar DENTRO do clique/toque: cria e destrava o áudio do navegador
+  destrava(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+    try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){} // iPhone: toca mesmo no modo silencioso
+    if(!this.ctx){this.ctx=new AC();this.master=this.ctx.createGain();this.master.gain.value=0;this.master.connect(this.ctx.destination)}
+    if(this.ctx.state!=='running')this.ctx.resume().catch(()=>{});
+    // um "bip" mudo de 1 amostra também destrava em Safari antigo
+    try{const b=this.ctx.createBuffer(1,1,22050),s=this.ctx.createBufferSource();s.buffer=b;s.connect(this.ctx.destination);s.start(0)}catch(e){}},
   async prepara(){if(this.buf)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
     if(!this.ctx){this.ctx=new AC();this.master=this.ctx.createGain();this.master.gain.value=0;this.master.connect(this.ctx.destination)}
     try{this.carregando=this.carregando||fetch(AMB_ARQ).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>this.ctx.decodeAudioData(b,ok,no)));this.buf=await this.carregando;return true}catch(e){this.carregando=null;return false}},
@@ -733,14 +740,14 @@ const amb={ctx:null,buf:null,master:null,on:false,abaixado:false,prox:null,fonte
     this.fontes.push(src);src.onended=()=>{this.fontes=this.fontes.filter(x=>x!==src)};
     const seguinte=quando+b.duration-cz;this.prox=setTimeout(()=>{if(this.on)this.agenda(seguinte)},Math.max(0,(seguinte-c.currentTime-1)*1000))},
   nivel(alvo,seg){const g=this.master.gain,t=this.ctx.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(alvo,t+seg)},
-  async liga(){if(this.on)return;this.on=true;if(!(await this.prepara())||!this.on)return;if(this.ctx.state==='suspended')await this.ctx.resume().catch(()=>{});
+  async liga(){if(this.on)return;this.on=true;this.destrava();if(!(await this.prepara())||!this.on)return;if(this.ctx.state!=='running')await this.ctx.resume().catch(()=>{});
     if(!this.fontes.length)this.agenda(this.ctx.currentTime+.05);this.nivel(this.abaixado?0:AMB_VOLUME,AMB_FADE)},
   desliga(){this.on=false;if(!this.ctx)return;this.nivel(0,1.2);clearTimeout(this.prox);const fs=this.fontes.slice();this.fontes=[];
     setTimeout(()=>{if(!this.on)fs.forEach(s=>{try{s.stop()}catch(e){}})},1300)},
   abaixa(sim){this.abaixado=sim;if(this.on&&this.buf)this.nivel(sim?0:AMB_VOLUME,sim?.4:1.8)}};
 const $=id=>document.getElementById(id),btn=$('som');
 let ligado=false,atual=null,timer=null;
-try{ligado=localStorage.getItem('som-faixas')==='1'}catch(e){}
+
 const players={};
 const player=f=>players[f.id]||(players[f.id]=Object.assign(new Audio(f.audio),{preload:'none'}));
 function rampa(a,alvo,ms,fim){cancelAnimationFrame(a._r);const v0=a.volume,t0=performance.now();
@@ -753,10 +760,11 @@ function toca(i,el){if(!ligado)return;const f=FAIXAS[i];if(!f)return;const a=pla
    .catch(()=>{if(atual===a){atual=null;el&&el.classList.remove('tocando');amb.abaixa(false)}});}
 function mostra(){btn.setAttribute('aria-pressed',ligado);btn.querySelector('span').textContent=ligado?'Som ligado':'Ativar som';
   btn.setAttribute('aria-label',ligado?'Desligar o som das prévias':'Ativar o som das prévias das faixas')}
-btn.addEventListener('click',()=>{ligado=!ligado;try{localStorage.setItem('som-faixas',ligado?'1':'0')}catch(e){}mostra();if(ligado)amb.liga();else{para();amb.desliga()}});
+btn.addEventListener('click',()=>{ligado=!ligado;mostra();if(ligado){amb.destrava();amb.liga()}else{para();amb.desliga()}});
 // se o som já estava ligado na visita anterior, o ambiente começa no primeiro clique/toque/tecla (regra dos navegadores)
-const destrava=e=>{if(e.target.closest&&e.target.closest('#som'))return;if(ligado)amb.liga();['pointerdown','keydown'].forEach(t=>removeEventListener(t,destrava,true))};
+const destrava=e=>{if(e.target.closest&&e.target.closest('#som'))return;if(ligado){amb.destrava();amb.liga()}['pointerdown','keydown'].forEach(t=>removeEventListener(t,destrava,true))};
 ['pointerdown','keydown'].forEach(t=>addEventListener(t,destrava,true));
+['pointerdown','touchend','keydown'].forEach(t=>addEventListener(t,()=>{if(ligado&&amb.ctx&&amb.ctx.state!=='running')amb.ctx.resume().catch(()=>{})},true));
 mostra();
 const sg=$('signs'),hover=matchMedia('(hover:hover) and (min-width:601px)');
 sg.addEventListener('mouseover',e=>{if(!hover.matches)return;const s=e.target.closest('.sign');if(s)toca(+s.dataset.i,s)});
