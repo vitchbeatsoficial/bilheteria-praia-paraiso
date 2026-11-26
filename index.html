@@ -48,7 +48,7 @@ button.ghost,a.ghost{background:transparent;color:var(--txt);border-color:rgba(2
 [hidden]{display:none!important}
 .hero{position:relative;height:100svh;min-height:520px;overflow:hidden;background:#cfe3e6}
 .hero::before{content:"";position:absolute;inset:-60px;background:url(home.webp) center/cover;filter:blur(28px) brightness(.9) saturate(1.1)}
-.box.lb{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.box.lb{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent),linear-gradient(180deg,transparent,#000 3%,#000 97%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent),linear-gradient(180deg,transparent,#000 3%,#000 97%,transparent);mask-composite:intersect}
 html.home,html.home body{overflow:hidden}
 @media(max-width:600px){.hero::before{display:none}.hero{background:linear-gradient(180deg,#cfe3e6 0,#2fb3c6 55%,#14808f)}}
 .box{position:absolute;transform-origin:center}
@@ -409,13 +409,13 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function layout(){
   const vw=hero.clientWidth, vh=hero.clientHeight;
   // as placas ocupam de 8% a 98,5% da altura da imagem: elas sempre aparecem inteiras
-  const A=.075,B=.985;
+  const A=.065,B=.99,FOLGA=.9; // FOLGA: quanto da altura da tela as placas podem ocupar
   let W=Math.max(vw,vh*R), H=W/R, top, lb=false;
   if(vw<=600){const ph=document.querySelector('.panel').offsetHeight+28;H=Math.max(vh-ph,vw/R);W=Math.max(H*R,vw);H=W/R;top=0}
-  else if((B-A)*H>vh){H=vh/(B-A);W=H*R;top=-A*H;lb=W<vw}
+  else if((B-A)*H>vh*FOLGA){H=vh*FOLGA/(B-A);W=H*R;top=vh/2-(A+B)/2*H;if(H>=vh)top=Math.max(vh-H,Math.min(0,top));lb=true}
   else{top=Math.min(vh-B*H,Math.max(-A*H,(vh-H)/2));top=Math.max(vh-H,Math.min(0,top))}
   box.classList.toggle('lb',lb);
-  const left = lb ? (vw-W)/2 : Math.max(vw-W, Math.min(0, Math.max((vw-W)/2, 10-0.135*W)));
+  const left = W<vw ? (vw-W)/2 : Math.max(vw-W, Math.min(0, Math.max((vw-W)/2, 10-0.135*W)));
   Object.assign(box.style,{width:W+'px',height:H+'px',left:left+'px',top:top+'px'});
   const d=Math.min(devicePixelRatio||1,1.5,2600/W);
   cv.width=Math.round(W*d); cv.height=Math.round(H*d);
