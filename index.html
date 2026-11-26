@@ -161,14 +161,14 @@ a.btn.share,button.share{background:#2b2a27;color:#fffaf0}
 .shmsg{min-height:1.4em;margin:6px 0 0;text-align:center;font:700 14px/1.45 "Courier Prime",monospace;color:#7a3b2a}
 .shlink{width:100%;margin-top:6px;font-size:14px!important}
 @media(max-width:420px){.shgrid{grid-template-columns:1fr}}
-.som{position:absolute;left:max(2vw,14px);bottom:max(3vh,14px);z-index:4;display:inline-flex;align-items:center;gap:8px;background:rgba(239,230,210,.92)!important;color:var(--ink)!important;border:2px solid #2b2a27!important;border-radius:999px!important;padding:8px 16px 8px 12px!important;min-height:44px;font:700 14px "Courier Prime",monospace!important;box-shadow:0 8px 18px rgba(0,0,0,.25);cursor:pointer;animation:rise .6s .9s cubic-bezier(.2,.8,.2,1) both}
+.som{position:fixed;left:max(2vw,14px);bottom:max(3vh,14px);z-index:45;display:inline-flex;align-items:center;gap:8px;background:rgba(239,230,210,.92)!important;color:var(--ink)!important;border:2px solid #2b2a27!important;border-radius:999px!important;padding:8px 16px 8px 12px!important;min-height:44px;font:700 14px "Courier Prime",monospace!important;box-shadow:0 8px 18px rgba(0,0,0,.25);cursor:pointer;animation:rise .6s .9s cubic-bezier(.2,.8,.2,1) both}
 .som svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .som svg path:first-child{fill:currentColor}
 .som .on{display:none}.som[aria-pressed=true] .on{display:inline}.som[aria-pressed=true] .off{display:none}
 .som[aria-pressed=false]{animation:rise .6s .9s cubic-bezier(.2,.8,.2,1) both,pulsa 2.4s 2s ease-in-out infinite}
 @keyframes pulsa{50%{box-shadow:0 8px 18px rgba(0,0,0,.25),0 0 0 8px rgba(239,230,210,.35)}}
 .sign.tocando .art{filter:brightness(1.18) saturate(1.25) drop-shadow(0 0 10px rgba(255,210,140,.8)) drop-shadow(0 6px 6px rgba(0,0,0,.45))!important}
-@media(max-width:600px){.som{top:12px;bottom:auto;left:12px}}
+@media(max-width:600px){.som{top:12px;bottom:auto;left:12px}html:not(.home) .som{top:auto;bottom:12px;left:auto;right:12px}}
 @media (prefers-reduced-motion:reduce){.som{animation:none!important}}
 html.lock{overflow:hidden}
 .booking{min-height:100svh}
@@ -185,6 +185,7 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
 </style>
 </head>
 <body>
+<button type="button" class="som" id="som" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/><path class="off" d="m16 9 6 6m0-6-6 6"/></svg><span>Ativar som</span></button>
 <section class="hero intro" id="hero">
   <div class="box" id="box">
     <img class="fb" id="fb" src="home.webp" alt="Placas de praia com os nomes das 13 faixas, farol e mar ao entardecer">
@@ -197,7 +198,6 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
     <div class="bird" style="top:9%;width:18px;animation-duration:41s;animation-delay:-9s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div>
     <div class="bird" style="top:30%;width:28px;animation-duration:30s;animation-delay:-24s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div>
   </div>
-  <button type="button" class="som" id="som" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="on" d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/><path class="off" d="m16 9 6 6m0-6-6 6"/></svg><span>Ativar som</span></button>
   <div class="panel">
     <p class="k">Álbum · 13 destinos</p>
     <h1>Eu o Mar e Ela</h1>
@@ -651,6 +651,24 @@ m.querySelectorAll('.shgrid button').forEach(b=>b.addEventListener('click',()=>{
    Coloque os arquivos na pasta audio/ com o nome da faixa (ex: audio/areia.mp3).
    DURACAO = quantos segundos toca no máximo. */
 const DURACAO=10, VOLUME=.85, FADE=350;
+/* ===== Som ambiente da página toda (loop com fade) =====
+   AMB_VOLUME = volume do ambiente (0 a 1). AMB_FADE = segundos do fade de entrada/saída. */
+const AMB_ARQ='audio/ambiente.mp3', AMB_VOLUME=.45, AMB_FADE=2.5, AMB_CRUZA=3;
+const amb={ctx:null,buf:null,master:null,on:false,abaixado:false,prox:null,fontes:[],carregando:null,
+  async prepara(){if(this.buf)return true;const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;
+    if(!this.ctx){this.ctx=new AC();this.master=this.ctx.createGain();this.master.gain.value=0;this.master.connect(this.ctx.destination)}
+    try{this.carregando=this.carregando||fetch(AMB_ARQ).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>this.ctx.decodeAudioData(b,ok,no)));this.buf=await this.carregando;return true}catch(e){this.carregando=null;return false}},
+  agenda(quando){const c=this.ctx,b=this.buf,src=c.createBufferSource(),g=c.createGain();src.buffer=b;src.connect(g);g.connect(this.master);
+    const cz=Math.min(AMB_CRUZA,b.duration/3);g.gain.setValueAtTime(0,quando);g.gain.linearRampToValueAtTime(1,quando+cz);
+    g.gain.setValueAtTime(1,quando+b.duration-cz);g.gain.linearRampToValueAtTime(0,quando+b.duration);src.start(quando);src.stop(quando+b.duration+.05);
+    this.fontes.push(src);src.onended=()=>{this.fontes=this.fontes.filter(x=>x!==src)};
+    const seguinte=quando+b.duration-cz;this.prox=setTimeout(()=>{if(this.on)this.agenda(seguinte)},Math.max(0,(seguinte-c.currentTime-1)*1000))},
+  nivel(alvo,seg){const g=this.master.gain,t=this.ctx.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(alvo,t+seg)},
+  async liga(){if(this.on)return;this.on=true;if(!(await this.prepara())||!this.on)return;if(this.ctx.state==='suspended')await this.ctx.resume().catch(()=>{});
+    if(!this.fontes.length)this.agenda(this.ctx.currentTime+.05);this.nivel(this.abaixado?0:AMB_VOLUME,AMB_FADE)},
+  desliga(){this.on=false;if(!this.ctx)return;this.nivel(0,1.2);clearTimeout(this.prox);const fs=this.fontes.slice();this.fontes=[];
+    setTimeout(()=>{if(!this.on)fs.forEach(s=>{try{s.stop()}catch(e){}})},1300)},
+  abaixa(sim){this.abaixado=sim;if(this.on&&this.buf)this.nivel(sim?0:AMB_VOLUME,sim?.4:1.8)}};
 const $=id=>document.getElementById(id),btn=$('som');
 let ligado=false,atual=null,timer=null;
 try{ligado=localStorage.getItem('som-faixas')==='1'}catch(e){}
@@ -658,15 +676,18 @@ const players={};
 const player=f=>players[f.id]||(players[f.id]=Object.assign(new Audio(f.audio),{preload:'none'}));
 function rampa(a,alvo,ms,fim){cancelAnimationFrame(a._r);const v0=a.volume,t0=performance.now();
   const passo=t=>{const p=Math.min(1,(t-t0)/ms);a.volume=Math.min(1,Math.max(0,v0+(alvo-v0)*p));if(p<1)a._r=requestAnimationFrame(passo);else fim&&fim()};a._r=requestAnimationFrame(passo)}
-function para(){clearTimeout(timer);document.querySelectorAll('.sign.tocando').forEach(x=>x.classList.remove('tocando'));
+function para(){clearTimeout(timer);amb.abaixa(false);document.querySelectorAll('.sign.tocando').forEach(x=>x.classList.remove('tocando'));
   if(!atual)return;const a=atual;atual=null;rampa(a,0,FADE,()=>{a.pause()})}
 function toca(i,el){if(!ligado)return;const f=FAIXAS[i];if(!f)return;const a=player(f);if(atual===a)return;para();
-  atual=a;a.currentTime=0;a.volume=0;el&&el.classList.add('tocando');
+  atual=a;a.currentTime=0;a.volume=0;el&&el.classList.add('tocando');amb.abaixa(true);
   a.play().then(()=>{if(atual!==a){a.pause();return}rampa(a,VOLUME,FADE);timer=setTimeout(()=>{if(atual===a)para()},DURACAO*1000-FADE)})
-   .catch(()=>{if(atual===a){atual=null;el&&el.classList.remove('tocando')}});}
+   .catch(()=>{if(atual===a){atual=null;el&&el.classList.remove('tocando');amb.abaixa(false)}});}
 function mostra(){btn.setAttribute('aria-pressed',ligado);btn.querySelector('span').textContent=ligado?'Som ligado':'Ativar som';
   btn.setAttribute('aria-label',ligado?'Desligar o som das prévias':'Ativar o som das prévias das faixas')}
-btn.addEventListener('click',()=>{ligado=!ligado;try{localStorage.setItem('som-faixas',ligado?'1':'0')}catch(e){}mostra();if(!ligado)para()});
+btn.addEventListener('click',()=>{ligado=!ligado;try{localStorage.setItem('som-faixas',ligado?'1':'0')}catch(e){}mostra();if(ligado)amb.liga();else{para();amb.desliga()}});
+// se o som já estava ligado na visita anterior, o ambiente começa no primeiro clique/toque/tecla (regra dos navegadores)
+const destrava=e=>{if(e.target.closest&&e.target.closest('#som'))return;if(ligado)amb.liga();['pointerdown','keydown'].forEach(t=>removeEventListener(t,destrava,true))};
+['pointerdown','keydown'].forEach(t=>addEventListener(t,destrava,true));
 mostra();
 const sg=$('signs'),hover=matchMedia('(hover:hover) and (min-width:601px)');
 sg.addEventListener('mouseover',e=>{if(!hover.matches)return;const s=e.target.closest('.sign');if(s)toca(+s.dataset.i,s)});
@@ -677,7 +698,8 @@ sg.addEventListener('focusout',e=>{if(!sg.contains(e.relatedTarget))para()});
 sg.addEventListener('click',e=>{if(hover.matches)return;const s=e.target.closest('.sign');if(!s)return;
   setTimeout(()=>{s.classList.contains('ativa')?toca(+s.dataset.i,s):para()},0)});
 document.getElementById('sheet').querySelector('.x').addEventListener('click',para);
-addEventListener('hashchange',para);document.addEventListener('visibilitychange',()=>{if(document.hidden)para()});
+addEventListener('hashchange',para);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){para();if(amb.on&&amb.ctx)amb.nivel(0,.8)}else if(amb.on&&amb.ctx){amb.ctx.resume();amb.abaixa(false)}});
 }
 </script>
 </body>
