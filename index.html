@@ -260,10 +260,10 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
       <div id="dedica" hidden>
         <p class="lbl"><span>2</span> Para quem é a passagem?</p>
         <label class="sr" for="para">Nome de quem vai receber</label>
-        <input id="para" maxlength="24" placeholder="Nome de quem vai receber">
-        <p class="lbl"><span>3</span> Sua mensagem <em class="cont" id="cont">0/90</em></p>
+        <input id="para" maxlength="20" placeholder="Nome de quem vai receber">
+        <p class="lbl"><span>3</span> Sua mensagem <em class="cont" id="cont">linha 2 de 4</em></p>
         <label class="sr" for="dedtxt">Mensagem da dedicatória</label>
-        <textarea id="dedtxt" maxlength="90" rows="3" placeholder="Ex: Essa viagem me lembra você. Bora pra praia?"></textarea>
+        <textarea id="dedtxt" maxlength="140" rows="3" placeholder="Ex: Essa viagem me lembra você. Bora pra praia?"></textarea>
       </div>
       <p class="lbl" id="lbldest"><span id="ndest">2</span> Escolha seu destino</p>
       <div class="dest" id="dest" role="radiogroup" aria-labelledby="lbldest"></div>
@@ -355,12 +355,23 @@ const fontes=()=>Promise.all(['600 46px Caveat, cursive','100px "Mrs Saint Delaf
 
 function quebrar(ctx,texto,larg){
   const out=[];let linha='';
-  for(const p of texto.split(/\s+/)){
+  const pedacos=[];
+  for(const p of texto.split(/\s+/).filter(Boolean)){
+    // palavra maior que a linha: quebra no meio
+    if(ctx.measureText(p).width<=larg){pedacos.push(p);continue}
+    let r='';for(const ch of p){if(ctx.measureText(r+ch).width>larg&&r){pedacos.push(r);r=ch}else r+=ch}
+    if(r)pedacos.push(r);
+  }
+  for(const p of pedacos){
     const t=linha?linha+' '+p:p;
     if(ctx.measureText(t).width>larg&&linha){out.push(linha);linha=p}else linha=t;
   }
   if(linha)out.push(linha);return out;
 }
+/* a dedicatória precisa caber nas 4 linhas do cartão com a letra em tamanho legível (TAM_MIN) */
+const LARG_LINHA=470, TAM_MIN=36;
+const medidor=document.createElement('canvas').getContext('2d');
+function linhasDed(para,texto){medidor.font='600 '+TAM_MIN+'px Caveat, cursive';return 1+quebrar(medidor,texto,LARG_LINHA).length}
 
 async function gerar(nome,ded){
   const fx=FAIXAS.find(f=>f.id===escolhido);
@@ -378,7 +389,7 @@ async function gerar(nome,ded){
   ctx.save();ctx.fillStyle='#1c2a55';ctx.textBaseline='alphabetic';
   let tam=50,ls;
   const corpo=ded?ded.texto:(fx.mensagem||'');
-  do{ctx.font='600 '+tam+'px Caveat, cursive';ls=quebrar(ctx,corpo,larg);if(ded)ls.unshift('Para '+ded.para+',');tam-=2}while(ls.length>4&&tam>26);
+  do{ctx.font='600 '+tam+'px Caveat, cursive';ls=quebrar(ctx,corpo,larg);if(ded)ls.unshift('Para '+ded.para+',');tam-=2}while((ls.length>4||(ded&&ctx.measureText(ls[0]).width>larg))&&tam>TAM_MIN);
   ls.slice(0,4).forEach((l,k)=>{ctx.save();ctx.translate(x0,linhasY[k]);ctx.rotate(-.006);ctx.fillText(l,0,0);ctx.restore()});
   ctx.restore();
 
@@ -427,7 +438,13 @@ function poeModo(m){modo=m;mbs.forEach(b=>{const on=b.dataset.m===m;b.setAttribu
   $('ndest').textContent=d?'4':'2';$('go').textContent=d?'Dedicar passagem ♡':'Emitir passagem ✈';$('err').textContent=''}
 mbs.forEach((b,k)=>{b.addEventListener('click',()=>poeModo(b.dataset.m));
   b.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();const n=mbs[1-k];n.focus();poeModo(n.dataset.m)}})});
-$('dedtxt').addEventListener('input',()=>{$('cont').textContent=$('dedtxt').value.length+'/90'});
+let dedOk='';
+function confereDed(e){const t=$('dedtxt');
+  if(linhasDed($('para').value,t.value)>4){t.value=dedOk;$('err').textContent='Chegou no limite das 4 linhas do cartão.';}
+  else{dedOk=t.value;if(/limite das 4 linhas/.test($('err').textContent))$('err').textContent=''}
+  const n=linhasDed($('para').value,t.value);$('cont').textContent='linha '+Math.min(4,Math.max(2,n))+' de 4';}
+$('dedtxt').addEventListener('input',confereDed);
+document.fonts&&document.fonts.load('600 36px Caveat').then(()=>{if($('dedtxt').value)confereDed()}).catch(()=>{});
 $('dest').innerHTML=FAIXAS.map((f,k)=>`<button type="button" role="radio" aria-checked="false" data-id="${f.id}" tabindex="${k?-1:0}"><img src="${f.sticker}" alt="" loading="lazy"><span>${f.nome}</span></button>`).join('');
 const bts=[...$('dest').querySelectorAll('button')];
 function escolhe(b){bts.forEach(x=>{x.setAttribute('aria-checked','false');x.tabIndex=-1});b.setAttribute('aria-checked','true');b.tabIndex=0;escolhido=b.dataset.id;
