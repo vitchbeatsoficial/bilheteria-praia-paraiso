@@ -657,7 +657,7 @@ try{ligado=localStorage.getItem('som-faixas')==='1'}catch(e){}
 const players={};
 const player=f=>players[f.id]||(players[f.id]=Object.assign(new Audio(f.audio),{preload:'none'}));
 function rampa(a,alvo,ms,fim){cancelAnimationFrame(a._r);const v0=a.volume,t0=performance.now();
-  const passo=t=>{const p=Math.min(1,(t-t0)/ms);a.volume=v0+(alvo-v0)*p;if(p<1)a._r=requestAnimationFrame(passo);else fim&&fim()};a._r=requestAnimationFrame(passo)}
+  const passo=t=>{const p=Math.min(1,(t-t0)/ms);a.volume=Math.min(1,Math.max(0,v0+(alvo-v0)*p));if(p<1)a._r=requestAnimationFrame(passo);else fim&&fim()};a._r=requestAnimationFrame(passo)}
 function para(){clearTimeout(timer);document.querySelectorAll('.sign.tocando').forEach(x=>x.classList.remove('tocando'));
   if(!atual)return;const a=atual;atual=null;rampa(a,0,FADE,()=>{a.pause()})}
 function toca(i,el){if(!ligado)return;const f=FAIXAS[i];if(!f)return;const a=player(f);if(atual===a)return;para();
