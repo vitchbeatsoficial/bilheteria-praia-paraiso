@@ -168,7 +168,7 @@ a.btn.share,button.share{background:#2b2a27;color:#fffaf0}
 .som[aria-pressed=false]{animation:rise .6s .9s cubic-bezier(.2,.8,.2,1) both,pulsa 2.4s 2s ease-in-out infinite}
 @keyframes pulsa{50%{box-shadow:0 8px 18px rgba(0,0,0,.25),0 0 0 8px rgba(239,230,210,.35)}}
 .sign.tocando .art{filter:brightness(1.18) saturate(1.25) drop-shadow(0 0 10px rgba(255,210,140,.8)) drop-shadow(0 6px 6px rgba(0,0,0,.45))!important}
-@media(max-width:600px){.som{top:12px;bottom:auto;left:12px}html:not(.home) .som{top:auto;bottom:12px;left:auto;right:12px}}
+@media(max-width:600px){.som{top:12px;bottom:auto;left:12px;width:48px;height:48px;padding:0!important;justify-content:center}.som span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}html:not(.home) .som{top:auto;bottom:14px;left:auto;right:14px}}
 @media (prefers-reduced-motion:reduce){.som{animation:none!important}}
 .modo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 6px}
 .modo button{all:unset;box-sizing:border-box;cursor:pointer;text-align:center;padding:10px 8px;border:2px solid rgba(43,42,39,.35);border-radius:8px;background:#fffaf0;font:700 16px "Special Elite",monospace;color:var(--ink);min-height:56px;transition:.2s}
@@ -182,6 +182,14 @@ a.btn.share,button.share{background:#2b2a27;color:#fffaf0}
 #f textarea:focus-visible{outline:3px solid var(--sun2);outline-offset:2px}
 #dedica{animation:abre .35s cubic-bezier(.2,.8,.2,1)}
 @keyframes abre{from{opacity:0;transform:translateY(-6px)}}
+.h-cel{display:none}
+@media (hover:none),(max-width:600px){.h-pc{display:none}.h-cel{display:inline}.card{cursor:zoom-in}}
+.zoom{position:fixed;inset:0;z-index:90;background:rgba(6,20,24,.94);display:grid;place-items:center;overflow:hidden}
+.zoom[hidden]{display:none!important}
+.zoom img{max-width:96vw;max-height:92vh;width:auto;height:auto;box-shadow:0 20px 50px rgba(0,0,0,.6);animation:zin .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes zin{from{opacity:0;transform:scale(.9)}}
+@media (orientation:portrait) and (max-width:600px){.zoom img{position:absolute;left:50%;top:50%;max-width:none;max-height:none;width:min(90svh,149vw);transform:translate(-50%,-50%) rotate(90deg);animation:none}}
+.zx{position:absolute;top:12px;right:12px;width:48px;height:48px;padding:0!important;border-radius:50%!important;background:var(--paper)!important;color:var(--ink)!important;font-size:20px!important}
 html.lock{overflow:hidden}
 .booking{min-height:100svh}
 .topbar{padding-top:20px!important;padding-bottom:0!important}.topbar+.wrap{padding-top:12px}
@@ -276,6 +284,7 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
 
   <div class="empty" id="empty">Seu cartão-postal sai por aqui ✈</div>
   <div class="stage" id="stage" hidden><img class="card" id="card" alt="Seu cartão-postal"></div>
+  <div id="zoom" class="zoom" hidden role="dialog" aria-label="Cartão ampliado"><img id="zimg" alt="Seu cartão-postal ampliado"><button type="button" class="zx" aria-label="Fechar">✕</button></div>
 
   <div class="meta" id="meta" hidden>
     <div>Seu destino musical: <b id="faixa"></b></div>
@@ -285,7 +294,7 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
       <button type="button" class="btn share" id="compartilhar">Compartilhar ↗</button>
       <button type="button" class="ghost" id="outra">Escolher outro destino</button>
     </div>
-    <div class="hint">Se o download não começar, segure o dedo (ou clique com o botão direito) na imagem e escolha “Salvar imagem”.</div>
+    <div class="hint"><span class="h-pc">Se o download não começar, clique com o botão direito na imagem e escolha “Salvar imagem”.</span><span class="h-cel">Toque no cartão para ver grande. Se o download não começar, segure o dedo na imagem e escolha “Salvar imagem”.</span></div>
   </div>
 
 </div>
@@ -454,6 +463,11 @@ bts.forEach((b,k)=>{b.addEventListener('click',()=>escolhe(b));
     const m={ArrowRight:1,ArrowLeft:-1,ArrowDown:c,ArrowUp:-c}[e.key];if(m==null)return;e.preventDefault();
     const n=bts[Math.max(0,Math.min(bts.length-1,k+m))];n.focus();escolhe(n)})});
 $('f').addEventListener('submit',e=>{e.preventDefault();emitir()});
+document.body.appendChild($('zoom'));
+const toqueZoom=matchMedia('(hover:none),(max-width:600px)');
+$('card').addEventListener('click',()=>{if(!toqueZoom.matches)return;$('zimg').src=$('card').src;$('zoom').hidden=false;document.documentElement.classList.add('lock')});
+const fechaZoom=()=>{$('zoom').hidden=true;document.documentElement.classList.remove('lock')};
+$('zoom').addEventListener('click',fechaZoom);
 window.emitirCartao=emitir;
 $('outra').addEventListener('click',()=>{$('f').scrollIntoView({behavior:'smooth',block:'center'});const b=$('dest').querySelector('[aria-checked=true]')||$('dest').querySelector('button');setTimeout(()=>b.focus({preventScroll:true}),400)});
 $('baixar').addEventListener('click',async e=>{
@@ -464,7 +478,7 @@ $('baixar').addEventListener('click',async e=>{
 });
 try{const n=localStorage.getItem('bilheteria-nome');if(n)$('nome').value=n}catch(e){}
 $('nome').addEventListener('input',()=>{try{localStorage.setItem('bilheteria-nome',$('nome').value)}catch(e){}});
-FAIXAS.slice(0,3).forEach(f=>loadImg(f.img).catch(()=>{}));
+if(matchMedia('(hover:hover) and (min-width:601px)').matches)FAIXAS.slice(0,3).forEach(f=>loadImg(f.img).catch(()=>{}));
 }
 </script>
 <script>
@@ -484,7 +498,7 @@ function layout(){
   box.classList.toggle('lb',lb);
   const left = W<vw ? (vw-W)/2 : Math.max(vw-W, Math.min(0, Math.max((vw-W)/2, 10-POSTE*W)));
   Object.assign(box.style,{width:W+'px',height:H+'px',left:left+'px',top:top+'px'});
-  const d=Math.min(devicePixelRatio||1,1.5,2600/W);
+  const d=Math.min(devicePixelRatio||1,innerWidth<=600?1.15:1.5,2600/W);
   cv.width=Math.round(W*d); cv.height=Math.round(H*d);
   if(gl) gl.viewport(0,0,cv.width,cv.height);
 }
@@ -589,7 +603,7 @@ function pagina(qual){
   bil.hidden=!naBil;hero.hidden=naBil;document.documentElement.classList.toggle('home',!naBil);
   const alvos=naBil?bil.querySelectorAll(':scope>.wrap'):[hero];alvos.forEach(a=>{a.classList.remove('pagein');void a.offsetWidth;a.classList.add('pagein')});
   scrollTo(0,0);
-  if(naBil)setTimeout(()=>{if(!$('nome').value.trim())$('nome').focus({preventScroll:true})},400);
+  if(naBil&&matchMedia('(hover:hover)').matches)setTimeout(()=>{if(!$('nome').value.trim())$('nome').focus({preventScroll:true})},400);
   else{hero.classList.add('volta');window.heroLayout&&window.heroLayout()}
 }
 const rota=()=>pagina(location.hash.slice(1)==='bilheteria'?'bilheteria':'inicio');
@@ -604,7 +618,7 @@ const gl=cv.getContext('webgl',{premultipliedAlpha:false});
 function layout(){const vw=innerWidth,vh=innerHeight;const W=Math.max(vw,vh*R),H=W/R;
   const left=Math.max(vw-W,Math.min(0,(vw-W)/2+(vw<700?-.06*W:0)));
   Object.assign(box.style,{width:W+'px',height:H+'px',left:left+'px',top:((vh-H)/2)+'px'});
-  const d=Math.min(devicePixelRatio||1,1.5,2600/W);cv.width=Math.round(W*d);cv.height=Math.round(H*d);if(gl)gl.viewport(0,0,cv.width,cv.height)}
+  const d=Math.min(devicePixelRatio||1,innerWidth<=600?1.15:1.5,2600/W);cv.width=Math.round(W*d);cv.height=Math.round(H*d);if(gl)gl.viewport(0,0,cv.width,cv.height)}
 const VS='attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
 const FS=`precision mediump float;varying vec2 uv;uniform sampler2D t;uniform float T;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
