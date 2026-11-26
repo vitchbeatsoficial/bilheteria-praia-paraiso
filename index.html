@@ -200,6 +200,44 @@ a.btn.share,button.share{background:#2b2a27;color:#fffaf0}
 .d-cel{display:none}
 @media (hover:none),(max-width:600px){.d-pc{display:none}.d-cel{display:inline}}
 @media (prefers-reduced-motion:reduce){.dica svg{animation:none}}
+.mlink{display:block;margin-top:12px;text-align:center;font:700 13px "Courier Prime",monospace;color:var(--ink);text-decoration:none;opacity:.75;border-bottom:1px dashed transparent;padding:6px 0}
+.mlink:hover,.mlink:focus-visible{opacity:1;text-decoration:underline dashed;outline:none}
+.mlink.claro{color:#fffaf0;opacity:.9;text-shadow:0 1px 6px rgba(0,0,0,.6);margin:6px 0 4px}
+.mural{position:relative;min-height:100svh;background:#0e3b43}
+.mbg{position:fixed;inset:-30px;background:url(bilheteria.webp) center/cover;filter:saturate(1.05);animation:deriva 40s ease-in-out infinite alternate;z-index:0}
+.mbg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,40,48,.55),rgba(10,40,48,.35) 40%,rgba(10,40,48,.7))}
+@keyframes deriva{to{transform:scale(1.06) translate(-1.5%,1%)}}
+.mwrap{position:relative;z-index:1;padding-top:20px!important}
+.mhead{text-align:center;margin:14px 0 22px}
+.mhead .kicker,.mhead .sub{color:#fffaf0;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.mhead h2{font:400 clamp(30px,5vw,46px)/1.05 "Special Elite",monospace;margin:0;color:#fffaf0;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.mform{max-width:620px!important;display:block!important}
+.mform .lbl{margin:14px 0 8px!important}
+.mform h3{font:400 22px "Special Elite",monospace;text-align:center;margin:0 0 6px}
+.mform label.lbl{display:flex}
+.mform input,.mform select,.mform textarea{width:100%;font:16px "Courier Prime",monospace;padding:12px 14px;min-height:48px;border:2px solid #2b2a27;border-radius:8px;background:#fffaf0;color:var(--ink)}
+.mform textarea{resize:vertical;line-height:1.45}
+.mform select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,#2b2a27 50%),linear-gradient(135deg,#2b2a27 50%,transparent 50%);background-position:calc(100% - 20px) 50%,calc(100% - 14px) 50%;background-size:6px 6px;background-repeat:no-repeat}
+.mform input:focus-visible,.mform select:focus-visible,.mform textarea:focus-visible{outline:3px solid var(--sun2);outline-offset:2px}
+#menviar{width:100%;margin-top:14px;font-size:18px;min-height:54px}
+.mtit{font:400 26px "Special Elite",monospace;color:#fffaf0;text-align:center;margin:40px 0 18px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.mtit span{font:700 14px "Courier Prime",monospace;opacity:.8}
+.mgrid{columns:3 300px;column-gap:18px;max-width:1100px;margin:0 auto}
+.rec{break-inside:avoid;display:inline-block;width:100%;box-sizing:border-box;position:relative;margin:14px 0 6px;background:var(--paper);color:var(--ink);border-radius:4px;padding:18px 18px 14px;box-shadow:0 12px 24px rgba(0,0,0,.35),inset 0 0 0 1px rgba(43,42,39,.35);
+ background-image:repeating-linear-gradient(180deg,transparent 0 29px,rgba(43,42,39,.13) 29px 30px);transform:rotate(var(--r,0deg));animation:cola .5s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes cola{from{opacity:0;transform:translateY(16px) rotate(calc(var(--r,0deg) - 4deg)) scale(.96)}}
+.rec::before{content:"";position:absolute;top:-9px;left:50%;width:70px;height:20px;margin-left:-35px;background:rgba(244,162,97,.55);transform:rotate(-3deg);box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.rec p{margin:0 0 12px;font:16px/30px "Courier Prime",monospace;white-space:pre-line;overflow-wrap:anywhere}
+.rec footer{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;border-top:1px dashed rgba(43,42,39,.35);padding-top:8px}
+.rec .ass{font:400 26px/1 "Mrs Saint Delafield",cursive;color:#14204a;overflow-wrap:anywhere}
+.rec .meta2{text-align:right;font:12px "Courier Prime",monospace;opacity:.65}
+.rec .fx{display:inline-block;margin-top:2px;font-weight:700;color:var(--sun2);opacity:1}
+.rec.novo{box-shadow:0 0 0 3px var(--sun2),0 12px 24px rgba(0,0,0,.35)}
+.mvazio{text-align:center;color:#fffaf0;font:16px "Courier Prime",monospace;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.mmais{text-align:center;margin:10px 0 30px}
+.mmais .ghost{background:rgba(10,40,48,.35)}
+@media(max-width:600px){.mgrid{columns:1}.rec{transform:none}}
+@media (prefers-reduced-motion:reduce){.mbg,.rec{animation:none}}
 html.lock{overflow:hidden}
 .booking{min-height:100svh}
 .topbar{padding-top:20px!important;padding-bottom:0!important}.topbar+.wrap{padding-top:12px}
@@ -234,6 +272,7 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
     <p>Passe na bilheteria, escolha seu destino e leve seu cartão-postal da viagem.</p>
     <p class="dica"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span class="d-pc">Ative o som e <b>passe o mouse nas placas</b> para ouvir uma prévia de cada faixa.</span><span class="d-cel">Ative o som e <b>toque nas placas</b> para ouvir uma prévia de cada faixa.</span></p>
     <a class="btn" href="#bilheteria" id="cta">Ir à bilheteria ✈</a>
+    <a class="mlink" href="#mural">✉ Mural de recados: conte o que achou →</a>
   </div>
 </section>
 <div id="shm" class="shm" hidden role="dialog" aria-modal="true" aria-labelledby="shtit">
@@ -300,6 +339,7 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
   <div class="meta" id="meta" hidden>
     <div>Seu destino musical: <b id="faixa"></b></div>
     <div id="metaded" hidden>Dedicado para <b id="metapara"></b></div>
+    <a class="mlink claro" href="#mural">Curtiu a viagem? Deixe seu recado no mural do álbum →</a>
     <div class="actions">
       <a class="btn" id="baixar" href="#" download="cartao-postal.png">Baixar meu cartão</a>
       <button type="button" class="btn share" id="compartilhar">Compartilhar ↗</button>
@@ -309,6 +349,34 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
   </div>
 
 </div>
+</main>
+<main class="mural" id="mural" hidden>
+  <div class="mbg" aria-hidden="true"></div>
+  <div class="wrap mwrap">
+    <a class="btn voltar" href="#inicio">← Voltar à praia</a>
+    <header class="mhead">
+      <p class="kicker">Álbum · Eu o Mar e Ela</p>
+      <h2>Mural de recados</h2>
+      <p class="sub">Deixe um cartão pro álbum: diga o que achou, qual faixa te pegou, onde você ouviu.</p>
+    </header>
+    <form class="booth mform" id="mf" autocomplete="off">
+      <h3>Escreva seu recado</h3>
+      <label class="lbl" for="mnome"><span>1</span> Seu nome</label>
+      <input id="mnome" maxlength="40" placeholder="Como quer assinar">
+      <label class="lbl" for="mfaixa"><span>2</span> Faixa favorita <em class="cont">opcional</em></label>
+      <select id="mfaixa"><option value="">Escolha uma faixa</option></select>
+      <label class="lbl" for="mtexto"><span>3</span> O que você achou do álbum? <em class="cont" id="mcont">0/500</em></label>
+      <textarea id="mtexto" maxlength="500" rows="4" placeholder="Escreva aqui…"></textarea>
+      <button type="submit" id="menviar">Colar no mural ✉</button>
+      <p class="err" id="merr" role="status"></p>
+    </form>
+    <section aria-labelledby="mtit">
+      <h3 class="mtit" id="mtit">Recados da galera <span id="mtotal"></span></h3>
+      <div class="mgrid" id="mgrid"></div>
+      <p class="mvazio" id="mvazio" hidden></p>
+      <div class="mmais"><button type="button" class="ghost" id="mmais" hidden>Ver mais recados</button></div>
+    </section>
+  </div>
 </main>
 
 <script>
@@ -609,15 +677,19 @@ document.addEventListener('click',e=>{if(!e.target.closest('.sign')&&!e.target.c
 // páginas: praia (início) e bilheteria
 const hero=$('hero'),bil=$('bilheteria');
 function pagina(qual){
-  const naBil=qual==='bilheteria';
-  if(naBil===!bil.hidden)return;
-  bil.hidden=!naBil;hero.hidden=naBil;document.documentElement.classList.toggle('home',!naBil);
-  const alvos=naBil?bil.querySelectorAll(':scope>.wrap'):[hero];alvos.forEach(a=>{a.classList.remove('pagein');void a.offsetWidth;a.classList.add('pagein')});
+  const mur=$('mural'),paginas={inicio:hero,bilheteria:bil,mural:mur};
+  if(!paginas[qual])qual='inicio';
+  const atual=Object.keys(paginas).find(k=>!paginas[k].hidden);
+  if(atual===qual)return;
+  for(const k in paginas)paginas[k].hidden=k!==qual;
+  document.documentElement.classList.toggle('home',qual==='inicio');
+  const alvos=qual==='inicio'?[hero]:paginas[qual].querySelectorAll(':scope>.wrap');alvos.forEach(a=>{a.classList.remove('pagein');void a.offsetWidth;a.classList.add('pagein')});
   scrollTo(0,0);
-  if(naBil&&matchMedia('(hover:hover)').matches)setTimeout(()=>{if(!$('nome').value.trim())$('nome').focus({preventScroll:true})},400);
-  else{hero.classList.add('volta');window.heroLayout&&window.heroLayout()}
+  if(qual==='bilheteria'&&matchMedia('(hover:hover)').matches)setTimeout(()=>{if(!$('nome').value.trim())$('nome').focus({preventScroll:true})},400);
+  if(qual==='inicio'){hero.classList.add('volta');window.heroLayout&&window.heroLayout()}
+  if(qual==='mural')window.abreMural&&window.abreMural();
 }
-const rota=()=>pagina(location.hash.slice(1)==='bilheteria'?'bilheteria':'inicio');
+const rota=()=>{const h=location.hash.slice(1);pagina(h==='bilheteria'||h==='mural'?h:'inicio')};
 addEventListener('hashchange',rota);rota();
 }
 </script>
@@ -801,6 +873,59 @@ addEventListener('hashchange',para);
 document.addEventListener('visibilitychange',()=>{
   if(CELULAR){if(document.hidden){para();if(amb.el)amb.el.pause()}else if(amb.on)amb.abaixa(false);return}
   if(document.hidden){para();if(amb.on&&amb.ctx)amb.nivel(0,.8)}else if(amb.on&&amb.ctx){amb.ctx.resume();amb.abaixa(false)}});
+}
+</script>
+<script>
+{
+/* ================= MURAL DE RECADOS (Supabase) =================
+   Cole aqui os dados do seu projeto Supabase (Project Settings → API):
+   URL  = Project URL            KEY = chave "anon public"            */
+const MURAL={URL:'', KEY:''};
+const POR_PAGINA=6;
+/* =============================================================== */
+const $=id=>document.getElementById(id);
+const ok=MURAL.URL&&MURAL.KEY;
+const H=()=>({'apikey':MURAL.KEY,'Authorization':'Bearer '+MURAL.KEY,'Content-Type':'application/json'});
+let offset=0,carregado=false,carregando=false;
+$('mfaixa').innerHTML+=FAIXAS.map(f=>`<option>${f.nome}</option>`).join('');
+const giro=()=>((Math.random()*2.4-1.2).toFixed(2))+'deg';
+const data=d=>{try{return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}catch(e){return ''}};
+function cartao(r,novo){const el=document.createElement('article');el.className='rec'+(novo?' novo':'');el.style.setProperty('--r',giro());
+  const p=document.createElement('p');p.textContent=r.texto;
+  const ft=document.createElement('footer');const as=document.createElement('span');as.className='ass';as.textContent=r.nome;
+  const mt=document.createElement('span');mt.className='meta2';mt.textContent=data(r.criado_em);
+  if(r.faixa){const fx=document.createElement('span');fx.className='fx';fx.textContent='♪ '+r.faixa;mt.append(document.createElement('br'),fx)}
+  ft.append(as,mt);el.append(p,ft);return el}
+async function carrega(){if(!ok||carregando)return;carregando=true;$('mmais').disabled=true;$('mmais').textContent='Carregando…';
+  try{const r=await fetch(`${MURAL.URL}/rest/v1/recados?select=nome,texto,faixa,criado_em&order=criado_em.desc&limit=${POR_PAGINA+1}&offset=${offset}`,{headers:{...H(),'Prefer':'count=exact'}});
+    if(!r.ok)throw 0;const lista=await r.json();const tot=(r.headers.get('content-range')||'').split('/')[1];
+    if(tot&&tot!=='*')$('mtotal').textContent='('+tot+')';
+    lista.slice(0,POR_PAGINA).forEach((x,i)=>{const c=cartao(x);c.style.animationDelay=(i*60)+'ms';$('mgrid').append(c)});
+    offset+=Math.min(lista.length,POR_PAGINA);
+    $('mmais').hidden=lista.length<=POR_PAGINA;
+    const vazio=!$('mgrid').children.length;$('mvazio').hidden=!vazio;if(vazio)$('mvazio').textContent='Ainda não tem recados. Seja a primeira pessoa a colar um cartão aqui!';
+  }catch(e){$('mvazio').hidden=false;$('mvazio').textContent='Não consegui carregar os recados agora. Tente de novo daqui a pouco.'}
+  carregando=false;$('mmais').disabled=false;$('mmais').textContent='Ver mais recados'}
+window.abreMural=()=>{if(!ok){$('mvazio').hidden=false;$('mvazio').textContent='O mural abre em breve!';$('menviar').disabled=true;return}
+  if(!carregado){carregado=true;carrega()}};
+$('mmais').addEventListener('click',carrega);
+$('mtexto').addEventListener('input',()=>{$('mcont').textContent=$('mtexto').value.length+'/500'});
+let ultimoEnvio=0;try{ultimoEnvio=+localStorage.getItem('mural-ultimo')||0}catch(e){}
+$('mf').addEventListener('submit',async e=>{e.preventDefault();if(!ok)return;
+  const nome=$('mnome').value.trim().replace(/\s+/g,' '),texto=$('mtexto').value.trim(),faixa=$('mfaixa').value||null;
+  if(!nome){$('merr').textContent='Escreva seu nome.';$('mnome').focus();return}
+  if(texto.length<3){$('merr').textContent='Escreva um recadinho (pelo menos 3 letras).';$('mtexto').focus();return}
+  if(Date.now()-ultimoEnvio<60000){$('merr').textContent='Calma! Espere um minutinho para mandar outro recado.';return}
+  $('menviar').disabled=true;$('merr').textContent='Colando no mural…';
+  try{const r=await fetch(`${MURAL.URL}/rest/v1/recados`,{method:'POST',headers:{...H(),'Prefer':'return=representation'},body:JSON.stringify({nome,texto,faixa})});
+    if(!r.ok)throw 0;const [novo]=await r.json();
+    ultimoEnvio=Date.now();try{localStorage.setItem('mural-ultimo',ultimoEnvio)}catch(e){}
+    $('mvazio').hidden=true;const c=cartao(novo||{nome,texto,faixa,criado_em:new Date()},true);$('mgrid').prepend(c);offset++;
+    $('mtexto').value='';$('mcont').textContent='0/500';$('merr').textContent='Recado colado! Valeu por ouvir ♡';
+    c.scrollIntoView({behavior:'smooth',block:'center'});
+  }catch(e){$('merr').textContent='Não deu para enviar agora. Tente de novo.'}
+  $('menviar').disabled=false});
+if(location.hash==='#mural')window.abreMural();
 }
 </script>
 </body>
