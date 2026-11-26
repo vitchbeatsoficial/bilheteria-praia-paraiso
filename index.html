@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eu o Mar e Ela · Bilheteria</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=Caveat:wght@500;600&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
+<style>
+/* VOICE: nostálgico, ensolarado, de férias — guichê de praia ao entardecer
+   IDEA: uma bilheteria/guichê que imprime um cartão-postal de viagem
+   PICTURE: o próprio cartão do álbum saindo pela fenda do guichê
+   COLOUR and TYPE: mar-petróleo #0e3b43, papel #efe6d2, pôr do sol #f4a261 / #e76f51; Special Elite + Courier Prime
+   LAYOUT: título curto, guichê com o campo do nome, cartão grande logo abaixo */
+:root{color-scheme:dark;--sea:#0e3b43;--sea2:#0a2c33;--paper:#efe6d2;--ink:#1f1d1a;--sun:#f4a261;--sun2:#e76f51;--txt:#f6efe0}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:#0e3b43;color:var(--txt);font:16px/1.55 "Courier Prime",ui-monospace,monospace;min-height:100vh;overflow-x:clip}
+.wrap{max-width:1100px;margin:0 auto;padding:clamp(24px,4vw,56px) max(4vw,16px) 64px}
+header{text-align:center;margin-bottom:28px}
+.kicker{font-family:"Special Elite",monospace;font-size:15px;color:#3a1f22;opacity:.85;margin:0 0 6px}
+h1{font-family:"Special Elite",monospace;font-weight:400;font-size:clamp(32px,6vw,52px);line-height:1.05;margin:0;color:#2a1418;text-wrap:balance}
+.sub{margin:10px auto 0;max-width:34em;color:#3a1f22;font-size:16px}
+.booth{position:relative;max-width:620px;margin:0 auto;background:var(--paper);color:var(--ink);border-radius:18px 18px 6px 6px;padding:22px 22px 26px;box-shadow:0 18px 40px rgba(0,0,0,.35),inset 0 0 0 3px #2b2a27,inset 0 0 0 7px var(--paper),inset 0 0 0 8px #2b2a27}
+.booth h2{font-family:"Special Elite",monospace;font-weight:400;font-size:22px;margin:0 0 4px;text-align:center}
+.booth p{margin:0 0 14px;text-align:center;font-size:15px}
+form{display:flex;gap:10px;flex-wrap:wrap}
+label.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+input{flex:1 1 220px;font:16px "Courier Prime",monospace;padding:12px 14px;min-height:48px;border:2px solid #2b2a27;border-radius:8px;background:#fffaf0;color:var(--ink)}
+input:focus-visible,button:focus-visible,a.btn:focus-visible{outline:3px solid var(--sun2);outline-offset:2px}
+button,a.btn{font:700 16px "Courier Prime",monospace;min-height:48px;padding:10px 18px;border-radius:8px;border:2px solid #2b2a27;background:var(--sun2);color:#fff8ee;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+button:hover,a.btn:hover{filter:brightness(1.08)}
+button.ghost,a.ghost{background:transparent;color:var(--txt);border-color:rgba(246,239,224,.6)}
+.err{color:#9b2c1f;font-size:14px;min-height:20px;margin-top:6px;text-align:center}
+.slot{height:14px;max-width:560px;margin:0 auto;background:#151413;border-radius:0 0 10px 10px;box-shadow:inset 0 4px 6px rgba(0,0,0,.8)}
+.stage{margin:0 auto;max-width:1040px;overflow:hidden;padding-top:6px}
+.card{display:block;width:100%;height:auto;filter:drop-shadow(0 16px 26px rgba(0,0,0,.45))}
+.stage.go .card{animation:out .9s cubic-bezier(.2,.8,.25,1) both}
+@keyframes out{from{transform:translateY(-104%)}to{transform:none}}
+@media (prefers-reduced-motion:reduce){.stage.go .card{animation:none}}
+.empty{max-width:1040px;margin:6px auto 0;aspect-ratio:2179/1399;border:2px dashed rgba(246,239,224,.35);border-radius:14px;display:grid;place-items:center;text-align:center;padding:20px;color:rgba(246,239,224,.8);font-family:"Special Elite",monospace;font-size:18px}
+.meta{text-align:center;margin:20px auto 0;max-width:40em}
+.meta b{font-family:"Special Elite",monospace;font-weight:400;font-size:24px;color:var(--sun)}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.hint{font-size:13px;opacity:.75;margin-top:10px;text-align:center}
+.note{font-size:13px;opacity:.6;text-align:center;margin-top:36px}
+[hidden]{display:none!important}
+.hero{position:relative;height:100svh;min-height:520px;overflow:hidden;background:#cfe3e6}
+@media(max-width:600px){.hero{background:linear-gradient(180deg,#cfe3e6 0,#2fb3c6 55%,#14808f)}}
+.box{position:absolute;transform-origin:center}
+.box canvas,.box img.fb{position:absolute;inset:0;width:100%;height:100%;display:block}
+.intro .box{animation:zoom 2.6s cubic-bezier(.2,.7,.2,1) both}
+@keyframes zoom{from{transform:scale(1.12);filter:brightness(1.6) saturate(.6)}to{transform:none;filter:none}}
+.birds{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bird{position:absolute;width:34px;height:14px;animation:fly linear infinite}
+.bird svg{width:100%;height:100%;animation:flap .5s ease-in-out infinite alternate;transform-origin:center}
+@keyframes fly{from{transform:translateX(-60px)}to{transform:translateX(calc(100vw + 60px))}}
+@keyframes flap{from{transform:scaleY(1)}to{transform:scaleY(-.45)}}
+.panel{position:absolute;right:max(3vw,16px);bottom:max(4vh,18px);width:min(400px,calc(100% - 32px));background:var(--paper);color:var(--ink);padding:20px 22px 22px;border-radius:6px;box-shadow:0 20px 40px rgba(0,0,0,.35),inset 0 0 0 2px #2b2a27,inset 0 0 0 6px var(--paper),inset 0 0 0 7px #2b2a27;transform:rotate(-1.5deg);animation:rise 1s .8s cubic-bezier(.2,.8,.2,1) both}
+.hero.volta .panel{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(40px) rotate(4deg)}to{opacity:1;transform:rotate(-1.5deg)}}
+.panel .k{font:400 14px "Special Elite",monospace;margin:0;opacity:.75}
+.panel h1{font:400 clamp(30px,4vw,44px)/1.02 "Special Elite",monospace;margin:4px 0 6px;color:#1f1d1a}
+.panel p{margin:0 0 14px;font-size:15px}
+.panel .btn{width:100%}
+@keyframes bob{to{transform:translate(-50%,6px)}}
+.booking{background:linear-gradient(180deg,#25aec3 0,#167585 22%,#0e3b43 70%);}
+.booking .kicker,.booking .sub{color:#fffaf0}
+.booking h1{font-size:clamp(30px,5vw,46px)}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s,transform .8s}
+.reveal.on{opacity:1;transform:none}
+@keyframes shine{to{left:130%}}
+.sign{position:absolute;left:16.4%;width:17.4%;height:4.6%;display:block;outline:none}
+.art{position:absolute;left:-6%;width:112%;top:-8%;height:116%;background-image:url(home.webp);background-repeat:no-repeat;opacity:0;transform-origin:39% 50%;transition:opacity .25s,filter .3s;pointer-events:none;
+ -webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent),linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);-webkit-mask-composite:source-in;
+ mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent),linear-gradient(180deg,transparent,#000 14%,#000 86%,transparent);mask-composite:intersect}
+.art::after{content:"";position:absolute;top:0;bottom:0;width:35%;left:-50%;background:linear-gradient(100deg,transparent,rgba(255,248,220,.55),transparent);transform:skewX(-18deg)}
+.sign:hover .art,.sign:focus-visible .art{opacity:1;filter:brightness(1.12) saturate(1.15) drop-shadow(0 6px 6px rgba(0,0,0,.45));animation:balanca 2.4s ease-in-out infinite}
+.sign:hover .art::after,.sign:focus-visible .art::after{animation:shine 1s ease-out .1s}
+@keyframes balanca{0%{transform:translateY(-4%) rotate(0deg)}25%{transform:translateY(-6%) rotate(-2.2deg)}50%{transform:translateY(-4%) rotate(0deg)}75%{transform:translateY(-6%) rotate(1.6deg)}100%{transform:translateY(-4%) rotate(0deg)}}
+@keyframes shine{to{left:130%}}
+.destino{text-align:center;font:700 15px "Courier Prime";color:var(--sun2);margin-top:8px}
+.sign{cursor:default}
+.tip{position:absolute;left:103%;top:0;width:min(320px,42vw);background:var(--paper);color:var(--ink);border-radius:6px;padding:10px 14px 14px;box-shadow:0 14px 28px rgba(0,0,0,.38),inset 0 0 0 1px rgba(43,42,39,.4);opacity:0;pointer-events:none;transform:translate(-14px,0) rotate(-5deg) scale(.92);transform-origin:left center;transition:opacity .25s,transform .4s cubic-bezier(.3,1.5,.5,1);z-index:5}
+.sign:hover .tip,.sign:focus-visible .tip{opacity:1;transform:rotate(-1.5deg)}
+.tip img{display:block;width:62%;height:auto;margin:0 auto 4px}
+.tip small{display:block;font:12px "Courier Prime",monospace;opacity:.7}
+.tip b{display:block;font:400 22px/1.1 "Special Elite",monospace}
+.tip .cr{display:block;font:13px "Courier Prime";opacity:.75;margin-top:2px}
+.tip .tx{display:block;font:15px/1.45 "Courier Prime",monospace;margin-top:8px;white-space:pre-line;max-height:12.5em;overflow:hidden;-webkit-mask-image:linear-gradient(180deg,#000 80%,transparent);mask-image:linear-gradient(180deg,#000 80%,transparent)}
+.tip .tx.vazio{font-style:italic;opacity:.6;-webkit-mask-image:none;mask-image:none}
+.sign:focus-visible .art{outline:none}
+button.sign{background:transparent;border:0;padding:0;min-height:0;border-radius:6px;font:inherit;color:inherit;filter:none}
+button.sign:hover{filter:none}
+.tip .cr,.tip .tx,.tip small{font-family:"Courier Prime",ui-monospace,monospace}
+#sheet{position:fixed;left:12px;right:12px;bottom:12px;z-index:60;max-height:72svh;overflow:auto;background:var(--paper);color:var(--ink);border-radius:8px;padding:12px 16px 16px;box-shadow:0 18px 40px rgba(0,0,0,.45);transform:translateY(120%);transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+#sheet.on{transform:none}
+#sheet img{display:block;width:46%;margin:0 auto 4px}
+#sheet small{display:block;font:12px "Courier Prime",monospace;opacity:.7}
+#sheet b{display:block;font:400 22px/1.1 "Special Elite",monospace}
+#sheet .cr{display:block;font:13px "Courier Prime",monospace;opacity:.75}
+#sheet .tx{display:block;font:15px/1.45 "Courier Prime",monospace;margin-top:8px;white-space:pre-line}
+#sheet .tx.vazio{font-style:italic;opacity:.6}
+#sheet .x{position:absolute;top:6px;right:6px;min-height:40px;min-width:40px;padding:0;background:transparent;color:var(--ink);border:0;font-size:20px}
+@media (hover:none),(max-width:600px){.tip{display:none}}
+.booking{background:#2a8fa0;position:relative}
+.bg2{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+.box2{position:absolute}
+.box2 canvas,.box2 img{position:absolute;inset:0;width:100%;height:100%;display:block}
+.bg2::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,40,48,.35) 0,rgba(10,40,48,0) 38%,rgba(10,40,48,0) 70%,rgba(10,40,48,.25))}
+.booking>.wrap{position:relative;z-index:1}
+.booking header .kicker,.booking header .sub,.booking header h2,.booking .meta,.booking .hint,.booking .note{text-shadow:0 2px 10px rgba(0,0,0,.55),0 1px 2px rgba(0,0,0,.6)}
+.booking .empty{aspect-ratio:auto;min-height:96px;max-width:620px;background:rgba(10,40,48,.18);border-color:rgba(255,250,240,.55);color:#fffaf0}
+.booking .meta b{color:#ffd29a}
+.leaf{position:absolute;top:-40px;width:22px;height:14px;animation:cai linear infinite}
+.leaf svg{width:100%;height:100%;animation:gira 2.2s ease-in-out infinite alternate}
+@keyframes cai{0%{transform:translate(0,0);opacity:0}8%{opacity:1}100%{transform:translate(var(--dx),110vh);opacity:.9}}
+@keyframes gira{from{transform:rotate(-40deg) translateX(-18px)}to{transform:rotate(50deg) translateX(18px)}}
+.mote{position:absolute;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle,#fff6d6,rgba(255,220,150,0) 70%);animation:sobe ease-in-out infinite}
+@keyframes sobe{0%{transform:translate(0,0);opacity:0}20%{opacity:.9}100%{transform:translate(var(--dx),-140px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.leaf,.leaf svg,.mote{animation:none;display:none}}
+.booth{max-width:860px!important}
+#f{display:block}
+#f input{width:100%}
+.lbl{display:flex;align-items:center;gap:8px;justify-content:flex-start!important;text-align:left!important;font:700 15px "Courier Prime",monospace;margin:14px 0 8px!important}
+.lbl span{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#2b2a27;color:var(--paper);font-size:13px}
+.dest{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.dest button{all:unset;box-sizing:border-box;cursor:pointer;background:#fffaf0;border:2px solid rgba(43,42,39,.35);border-radius:8px;padding:6px 6px 8px;text-align:center;transition:transform .25s cubic-bezier(.3,1.6,.5,1),border-color .2s,box-shadow .2s;min-height:44px}
+.dest button img{display:block;width:100%;height:auto;border-radius:4px}
+.dest button span{display:block;font:700 13px/1.2 "Courier Prime",monospace;margin-top:4px;color:var(--ink)}
+.dest button:hover{transform:translateY(-3px) rotate(-1.5deg);border-color:#2b2a27;box-shadow:0 8px 14px rgba(0,0,0,.18)}
+.dest button:focus-visible{outline:3px solid var(--sun2);outline-offset:2px}
+.dest button[aria-checked=true]{border-color:var(--sun2);background:#fff1df;box-shadow:0 0 0 3px var(--sun2),0 10px 18px rgba(231,111,81,.3);transform:translateY(-3px) rotate(1deg)}
+.dest button[aria-checked=true]::after{content:"✓";position:absolute;margin:-8px 0 0 -8px;width:26px;height:26px;border-radius:50%;background:var(--sun2);color:#fff;font:700 15px/26px sans-serif;text-align:center}
+.dest button{position:relative}
+.dest button[aria-checked=true]::after{top:0;left:0}
+#destino{text-align:center;font:700 14px "Courier Prime",monospace;color:#7a3b2a;margin:12px 0 12px;min-height:1.4em}
+#go{width:100%;font-size:18px;min-height:54px}
+@media(min-width:760px){.dest{grid-template-columns:repeat(7,minmax(0,1fr))}}
+@media(max-width:600px){.dest{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.dest button span{font-size:12px}}
+a.btn.share,button.share{background:#2b2a27;color:#fffaf0}
+.shm{position:fixed;inset:0;z-index:80;background:rgba(6,25,30,.72);backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;overflow:auto}
+.shm[hidden]{display:none!important}
+.shbox{position:relative;width:min(520px,100%);background:var(--paper);color:var(--ink);border-radius:10px;padding:22px 20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.5),inset 0 0 0 2px #2b2a27,inset 0 0 0 6px var(--paper),inset 0 0 0 7px #2b2a27;animation:shin .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes shin{from{transform:translateY(24px) scale(.97);opacity:0}}
+.shbox h3{font:400 24px "Special Elite",monospace;margin:0 0 12px;text-align:center}
+.shbox>img{display:block;width:100%;border-radius:6px;box-shadow:0 6px 16px rgba(0,0,0,.25);margin-bottom:14px}
+.shx{position:absolute;top:8px;right:8px;background:transparent!important;color:var(--ink)!important;border:0!important;min-width:44px;font-size:20px}
+.shgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.shgrid button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto auto;column-gap:10px;align-items:center;padding:12px;border:2px solid #2b2a27;border-radius:8px;background:#fffaf0;min-height:60px;transition:transform .2s,background .2s}
+.shgrid button:hover{transform:translateY(-2px);background:#fff1df}
+.shgrid button:focus-visible{outline:3px solid var(--sun2);outline-offset:2px}
+.shgrid svg{grid-row:1/3;width:30px;height:30px;fill:none;stroke:var(--sun2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.shgrid b{font:700 15px/1.2 "Courier Prime",monospace}
+.shgrid small{font:12px "Courier Prime",monospace;opacity:.65}
+.shwa{display:block;text-align:center;margin-top:12px;font:700 14px "Courier Prime",monospace;color:#1d6b4f;padding:8px}
+.shmsg{min-height:1.4em;margin:6px 0 0;text-align:center;font:700 14px/1.45 "Courier Prime",monospace;color:#7a3b2a}
+.shlink{width:100%;margin-top:6px;font-size:14px!important}
+@media(max-width:420px){.shgrid{grid-template-columns:1fr}}
+html.lock{overflow:hidden}
+.booking{min-height:100svh}
+.topbar{padding-top:20px!important;padding-bottom:0!important}.topbar+.wrap{padding-top:12px}
+a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);color:#fffaf0}
+.pagein{animation:pagein .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pagein{from{opacity:0;transform:translateY(24px)}}
+@media (prefers-reduced-motion:reduce){.pagein{animation:none}}
+
+@media (prefers-reduced-motion:reduce){.sign .art,.sign .art::after{animation:none!important}}
+@media(max-width:600px){.panel{left:16px;right:16px;width:auto;bottom:16px;padding:16px}.panel h1{font-size:28px}.scrollcue{display:none}}
+@media (prefers-reduced-motion:reduce){.intro .box,.panel,.bird,.bird svg,.scrollcue{animation:none!important}.reveal{opacity:1;transform:none}}
+
+</style>
+</head>
+<body>
+<section class="hero intro" id="hero">
+  <div class="box" id="box">
+    <img class="fb" id="fb" src="home.webp" alt="Placas de praia com os nomes das 13 faixas, farol e mar ao entardecer">
+    <canvas id="gl" aria-hidden="true"></canvas>
+    <nav id="signs" aria-label="Faixas do álbum"></nav>
+  </div>
+  <div class="birds" aria-hidden="true">
+    <div class="bird" style="top:14%;animation-duration:26s;animation-delay:-4s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+    <div class="bird" style="top:22%;width:24px;animation-duration:34s;animation-delay:-18s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+    <div class="bird" style="top:9%;width:18px;animation-duration:41s;animation-delay:-9s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+    <div class="bird" style="top:30%;width:28px;animation-duration:30s;animation-delay:-24s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div>
+  </div>
+  <div class="panel">
+    <p class="k">Álbum · 13 destinos</p>
+    <h1>Eu o Mar e Ela</h1>
+    <p>Passe na bilheteria, escolha seu destino e leve seu cartão-postal da viagem.</p>
+    <a class="btn" href="#bilheteria" id="cta">Ir à bilheteria ✈</a>
+  </div>
+</section>
+<div id="shm" class="shm" hidden role="dialog" aria-modal="true" aria-labelledby="shtit">
+  <div class="shbox">
+    <button type="button" class="shx" id="shx" aria-label="Fechar">✕</button>
+    <h3 id="shtit">Compartilhar minha viagem</h3>
+    <img id="shprev" alt="Prévia do seu cartão-postal">
+    <div class="shgrid">
+      <button type="button" data-a="link"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><b>Copiar link</b><small>do site</small></button>
+      <button type="button" data-a="status"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-dasharray="4 2.5"/><circle cx="12" cy="12" r="4.5"/></svg><b>Status do WhatsApp</b><small>com a imagem</small></button>
+      <button type="button" data-a="direct"><svg viewBox="0 0 24 24"><path d="M21 3 3 10.5l7 2.5 2.5 7z"/><path d="m21 3-11 10"/></svg><b>Direct do Instagram</b><small>com a imagem</small></button>
+      <button type="button" data-a="feed"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".9" fill="currentColor"/></svg><b>Feed do Instagram</b><small>com a imagem</small></button>
+    </div>
+    <a class="shwa" id="shwa" target="_blank" rel="noopener">Mandar o link numa conversa do WhatsApp →</a>
+    <p class="shmsg" id="shmsg" role="status"></p>
+    <input class="shlink" id="shlink" readonly hidden aria-label="Link do site">
+  </div>
+</div>
+<div id="sheet" role="dialog" aria-live="polite" hidden><button type="button" class="x" aria-label="Fechar">✕</button><div id="sheetc"></div></div>
+<main class="booking" id="bilheteria" hidden>
+<div class="bg2" aria-hidden="true">
+  <div class="box2" id="box2"><img id="fb2" src="bilheteria.webp" alt=""><canvas id="gl2"></canvas></div>
+  <div class="birds"><div class="bird" style="top:18%;width:26px;animation-duration:32s;animation-delay:-5s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div><div class="bird" style="top:26%;width:18px;animation-duration:40s;animation-delay:-20s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div><div class="bird" style="top:12%;width:22px;animation-duration:36s;animation-delay:-12s"><svg viewBox="0 0 34 14"><path d="M1 12 Q9 1 17 10 Q25 1 33 12" fill="none" stroke="#2b3036" stroke-width="2.4" stroke-linecap="round"/></svg></div></div><div class="leaf" style="left:17%;--dx:157px;animation-duration:12s;animation-delay:-12s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#5f6f2a"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:11%;--dx:103px;animation-duration:12s;animation-delay:-0s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#5f6f2a"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:37%;--dx:154px;animation-duration:11s;animation-delay:-7s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#b98a34"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:36%;--dx:172px;animation-duration:15s;animation-delay:-5s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#6b7d2f"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:18%;--dx:134px;animation-duration:11s;animation-delay:-8s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#c9a33f"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:14%;--dx:122px;animation-duration:15s;animation-delay:-9s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#7f8f35"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:57%;--dx:175px;animation-duration:12s;animation-delay:-10s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#7f8f35"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:26%;--dx:209px;animation-duration:14s;animation-delay:-5s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#8a9a3a"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="leaf" style="left:32%;--dx:151px;animation-duration:12s;animation-delay:-17s;transform-origin:center"><svg viewBox="0 0 22 14"><path d="M1 7 Q8 0 21 7 Q8 14 1 7Z" fill="#c9a33f"/><path d="M2 7 H19" stroke="rgba(0,0,0,.25)" stroke-width="1"/></svg></div><div class="mote" style="left:60%;top:54%;--dx:33px;animation-duration:7s;animation-delay:-8s"></div><div class="mote" style="left:66%;top:58%;--dx:14px;animation-duration:9s;animation-delay:-4s"></div><div class="mote" style="left:73%;top:59%;--dx:-20px;animation-duration:6s;animation-delay:-4s"></div><div class="mote" style="left:68%;top:70%;--dx:-35px;animation-duration:5s;animation-delay:-0s"></div><div class="mote" style="left:74%;top:65%;--dx:-5px;animation-duration:9s;animation-delay:-8s"></div><div class="mote" style="left:80%;top:60%;--dx:3px;animation-duration:6s;animation-delay:-3s"></div><div class="mote" style="left:62%;top:58%;--dx:-15px;animation-duration:8s;animation-delay:-4s"></div><div class="mote" style="left:65%;top:56%;--dx:15px;animation-duration:9s;animation-delay:-5s"></div><div class="mote" style="left:80%;top:62%;--dx:-15px;animation-duration:7s;animation-delay:-1s"></div><div class="mote" style="left:86%;top:46%;--dx:-11px;animation-duration:7s;animation-delay:-3s"></div><div class="mote" style="left:63%;top:55%;--dx:-18px;animation-duration:7s;animation-delay:-7s"></div><div class="mote" style="left:60%;top:46%;--dx:5px;animation-duration:5s;animation-delay:-4s"></div><div class="mote" style="left:83%;top:66%;--dx:1px;animation-duration:5s;animation-delay:-5s"></div><div class="mote" style="left:69%;top:55%;--dx:-21px;animation-duration:8s;animation-delay:-1s"></div>
+</div>
+<div class="wrap topbar"><a class="btn voltar" href="#inicio">← Voltar à praia</a></div>
+<div class="wrap">
+  <header>
+    <p class="kicker">Álbum · Eu o Mar e Ela</p>
+    <h2 style="font:400 clamp(30px,5vw,46px)/1.05 'Special Elite',monospace;margin:0;color:#fffaf0">Bilheteria</h2>
+    <p class="sub">Diga seu nome, escolha seu destino e receba seu cartão-postal da viagem, com a mensagem da música e a sua assinatura.</p>
+  </header>
+
+  <section class="booth reveal" aria-labelledby="g">
+    <h2 id="g">Guichê 01 · Embarque</h2>
+    <form id="f" autocomplete="off">
+      <p class="lbl"><span>1</span> Nome do passageiro</p>
+      <label class="sr" for="nome">Seu nome</label>
+      <input id="nome" name="nome" maxlength="28" placeholder="Digite seu nome" required>
+      <p class="lbl" id="lbldest"><span>2</span> Escolha seu destino</p>
+      <div class="dest" id="dest" role="radiogroup" aria-labelledby="lbldest"></div>
+      <div class="destino" id="destino" aria-live="polite">Nenhum destino escolhido ainda</div>
+      <button type="submit" id="go">Emitir passagem ✈</button>
+    </form>
+    <div class="err" id="err" role="status"></div>
+  </section>
+  <div class="slot" aria-hidden="true"></div>
+
+  <div class="empty" id="empty">Seu cartão-postal sai por aqui ✈</div>
+  <div class="stage" id="stage" hidden><img class="card" id="card" alt="Seu cartão-postal"></div>
+
+  <div class="meta" id="meta" hidden>
+    <div>Seu destino musical: <b id="faixa"></b></div>
+    <div class="actions">
+      <a class="btn" id="baixar" href="#" download="cartao-postal.png">Baixar meu cartão</a>
+      <button type="button" class="btn share" id="compartilhar">Compartilhar ↗</button>
+      <button type="button" class="ghost" id="outra">Escolher outro destino</button>
+    </div>
+    <div class="hint">Se o download não começar, segure o dedo (ou clique com o botão direito) na imagem e escolha “Salvar imagem”.</div>
+  </div>
+
+</div>
+</main>
+
+<script>
+/* ===================================================================
+   EDITE AQUI — as 13 faixas, na ordem das placas (de cima para baixo)
+   feat     = participação (deixe '' se não tiver)
+   mensagem = a mensagenzinha da música (escreva entre as aspas '')
+   =================================================================== */
+const FAIXAS = [
+  {id:'areia', nome:'Areia', y:118,
+   feat:'Lil Chainz',
+   mensagem:'A parada obrigatória pra essa viagem'},
+  {id:'cais', nome:'Cais', y:185,
+   feat:'Ekko Bxd e Nikmouu',
+   mensagem:'Deixe tudo pra trás e embarque nessa viagem!'},
+  {id:'farol', nome:'Farol', y:243,
+   feat:'',
+   mensagem:'Perfeito para visitar à noite!'},
+  {id:'horizonte', nome:'Horizonte', y:297,
+   feat:'',
+   mensagem:'Pare, e aprecie o visual...'},
+  {id:'navegar', nome:'Navegar', y:350,
+   feat:'',
+   mensagem:'Pegue seu barco e vambora!'},
+  {id:'eu-o-mar-e-ela', nome:'Eu, o Mar e Ela', y:408,
+   feat:'',
+   mensagem:'Simplesmente a melhor combinação possível!'},
+  {id:'praia', nome:'Praia', y:444,
+   feat:'Dawid',
+   mensagem:'Solzinho, brisa do mar e ela do lado!'},
+  {id:'ritmo-do-mar', nome:'Ritmo do Mar', y:510,
+   feat:'BLK e Yuuta',
+   mensagem:'Por aqui você vai se movimentar como as ondas!'},
+  {id:'onda', nome:'Onda', y:590,
+   feat:'',
+   mensagem:'Sabe surfar? Aqui você vai precisar seguir a wave'},
+  {id:'por-do-sol', nome:'Pôr do Sol', y:665,
+   feat:'Sazack',
+   mensagem:'Aproveite a melhor paisagem de todas!'},
+  {id:'paraiso', nome:'Paraíso', y:740,
+   feat:'',
+   mensagem:'O destino preferido dos apaixonados!'},
+  {id:'oceano', nome:'Oceano', y:808,
+   feat:'Murart',
+   mensagem:'Leveza, carisma e alegria, é por aqui mesmo'},
+  {id:'cartao-postal', nome:'Cartão Postal', y:880,
+   feat:'Slow GM',
+   mensagem:'Nosso último destino, mas que deixará boas lembranças!'}
+];
+FAIXAS.forEach(f=>{f.img='cards/'+f.id+'.webp';f.sticker='sticker/'+f.id+'.webp'});
+</script>
+<script>
+{
+const MESES=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
+const $=id=>document.getElementById(id);
+const cache={};
+let ultimo=-1, nomeAtual='', urlAtual=null, blobAtual=null, dl=null;
+if(window.claude&&claude.use)claude.use('downloads').then(x=>{dl=x}).catch(()=>{});
+
+const loadImg=src=>cache[src]||(cache[src]=new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=src}));
+const fontes=()=>Promise.all(['600 46px Caveat, cursive','100px "Mrs Saint Delafield", cursive','700 50px "Courier Prime"','24px "Courier Prime"'].map(f=>document.fonts.load(f))).catch(()=>{});
+
+function quebrar(ctx,texto,larg){
+  const out=[];let linha='';
+  for(const p of texto.split(/\s+/)){
+    const t=linha?linha+' '+p:p;
+    if(ctx.measureText(t).width>larg&&linha){out.push(linha);linha=p}else linha=t;
+  }
+  if(linha)out.push(linha);return out;
+}
+
+async function gerar(nome){
+  const fx=FAIXAS.find(f=>f.id===escolhido);
+  const [img]=await Promise.all([loadImg(fx.img),fontes()]);
+  const c=document.createElement('canvas');c.width=2179;c.height=1399;
+  const ctx=c.getContext('2d');ctx.drawImage(img,0,0,2179,1399);
+
+  // data no carimbo
+  const d=new Date();
+  ctx.save();ctx.fillStyle='rgba(31,29,26,.92)';ctx.font='700 50px "Courier Prime"';ctx.textAlign='center';
+  ctx.translate(1349,238);ctx.scale(.86,1);ctx.fillText(MESES[d.getMonth()]+' '+String(d.getDate()).padStart(2,'0'),0,0);ctx.restore();
+
+  // trecho da música nas linhas
+  const linhasY=[602,699,788,875], x0=1612, larg=470;
+  ctx.save();ctx.fillStyle='#1c2a55';ctx.textBaseline='alphabetic';
+  let tam=50,ls;
+  do{ctx.font='600 '+tam+'px Caveat, cursive';ls=quebrar(ctx,fx.mensagem||'',larg);tam-=2}while(ls.length>4&&tam>26);
+  ls.slice(0,4).forEach((l,k)=>{ctx.save();ctx.translate(x0,linhasY[k]);ctx.rotate(-.006);ctx.fillText(l,0,0);ctx.restore()});
+  ctx.restore();
+
+  // assinatura do viajante
+  ctx.save();
+  ctx.strokeStyle='rgba(31,29,26,.8)';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(1170,1236);ctx.lineTo(1478,1232);ctx.stroke();
+  ctx.fillStyle='rgba(31,29,26,.85)';ctx.font='24px "Courier Prime"';ctx.textAlign='center';ctx.fillText('assinatura do viajante',1324,1268);
+  let s=120;ctx.font=s+'px "Mrs Saint Delafield", cursive';
+  while(ctx.measureText(nome).width>330&&s>50){s-=4;ctx.font=s+'px "Mrs Saint Delafield", cursive'}
+  ctx.fillStyle='#14204a';ctx.translate(1324,1218);ctx.rotate(-.07);ctx.fillText(nome,0,0);
+  ctx.restore();
+
+  return {fx,blob:await new Promise(r=>c.toBlob(r,'image/png'))};
+}
+
+async function emitir(){
+  const nome=$('nome').value.trim().replace(/\s+/g,' ');
+  if(!nome){$('err').textContent='Escreva seu nome para emitir a passagem.';$('nome').focus();return}
+  if(!escolhido){$('err').textContent='Escolha um destino para a sua viagem.';$('dest').querySelector('button').focus();return}
+  $('err').textContent='Imprimindo seu cartão…';$('go').disabled=true;$('outra').disabled=true;
+  try{
+    const {fx,blob}=await gerar(nome);
+    if(urlAtual)URL.revokeObjectURL(urlAtual);
+    urlAtual=URL.createObjectURL(blob);nomeAtual=nome;blobAtual=blob;
+    const st=$('stage');st.hidden=false;$('empty').hidden=true;st.classList.remove('go');
+    $('card').src=urlAtual;$('card').alt='Cartão-postal de '+nome+' – faixa '+fx.nome;
+    void st.offsetWidth;st.classList.add('go');
+    $('faixa').textContent=fx.nome;$('meta').hidden=false;
+    $('baixar').href=urlAtual;
+    $('baixar').download='cartao-postal-'+nome.toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.png';
+    $('err').textContent='';
+    st.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+  }catch(e){$('err').textContent='Não consegui imprimir agora. Tente de novo.'}
+  $('go').disabled=false;$('outra').disabled=false;
+}
+
+let escolhido=null;
+$('dest').innerHTML=FAIXAS.map((f,k)=>`<button type="button" role="radio" aria-checked="false" data-id="${f.id}" tabindex="${k?-1:0}"><img src="${f.sticker}" alt="" loading="lazy"><span>${f.nome}</span></button>`).join('');
+const bts=[...$('dest').querySelectorAll('button')];
+function escolhe(b){bts.forEach(x=>{x.setAttribute('aria-checked','false');x.tabIndex=-1});b.setAttribute('aria-checked','true');b.tabIndex=0;escolhido=b.dataset.id;
+  const f=FAIXAS.find(x=>x.id===escolhido);$('destino').textContent='Destino: '+f.nome+(f.feat?' (feat. '+f.feat+')':'')+' — '+f.mensagem;$('err').textContent=''}
+bts.forEach((b,k)=>{b.addEventListener('click',()=>escolhe(b));
+  b.addEventListener('keydown',e=>{const c=getComputedStyle($('dest')).gridTemplateColumns.split(' ').length;
+    const m={ArrowRight:1,ArrowLeft:-1,ArrowDown:c,ArrowUp:-c}[e.key];if(m==null)return;e.preventDefault();
+    const n=bts[Math.max(0,Math.min(bts.length-1,k+m))];n.focus();escolhe(n)})});
+$('f').addEventListener('submit',e=>{e.preventDefault();emitir()});
+window.emitirCartao=emitir;
+$('outra').addEventListener('click',()=>{$('f').scrollIntoView({behavior:'smooth',block:'center'});const b=$('dest').querySelector('[aria-checked=true]')||$('dest').querySelector('button');setTimeout(()=>b.focus({preventScroll:true}),400)});
+$('baixar').addEventListener('click',async e=>{
+  if(!dl||!blobAtual)return; // fora do Claude: o link normal baixa
+  e.preventDefault();
+  try{await dl.save({filename:$('baixar').download,data:blobAtual})}
+  catch(er){if(!er||er.code!=='declined')$('err').textContent='Não deu para baixar aqui. Segure o dedo na imagem e salve.'}
+});
+try{const n=localStorage.getItem('bilheteria-nome');if(n)$('nome').value=n}catch(e){}
+$('nome').addEventListener('input',()=>{try{localStorage.setItem('bilheteria-nome',$('nome').value)}catch(e){}});
+FAIXAS.slice(0,3).forEach(f=>loadImg(f.img).catch(()=>{}));
+}
+</script>
+<script>
+{
+const R=1643/924, hero=document.getElementById('hero'), box=document.getElementById('box');
+const cv=document.getElementById('gl'), fb=document.getElementById('fb');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function layout(){
+  const vw=hero.clientWidth, vh=hero.clientHeight;
+  let W=Math.max(vw,vh*R), H=W/R, top=Math.min(0,Math.max(vh-0.985*H,(vh-H)/2));
+  if(vw<=600){const ph=document.querySelector('.panel').offsetHeight+28;H=Math.max(vh-ph,vw/R);W=Math.max(H*R,vw);H=W/R;top=0}
+  const left = Math.max(vw-W, Math.min(0, Math.max((vw-W)/2, 10-0.135*W)));
+  Object.assign(box.style,{width:W+'px',height:H+'px',left:left+'px',top:top+'px'});
+  const d=Math.min(devicePixelRatio||1,1.5,2600/W);
+  cv.width=Math.round(W*d); cv.height=Math.round(H*d);
+  if(gl) gl.viewport(0,0,cv.width,cv.height);
+}
+
+const gl=cv.getContext('webgl',{premultipliedAlpha:false});
+const VS='attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
+const FS=`precision mediump float;varying vec2 uv;uniform sampler2D t;uniform float T;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+ return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*n(p);p*=2.03;a*=.5;}return s;}
+void main(){
+ vec2 u=uv; float x=u.x,y=u.y;
+ float post=smoothstep(.150,.168,x)*(1.-smoothstep(.334,.352,x));
+ float free=1.-post;
+ float water=smoothstep(.675,.715,y)*free;
+ float amp=water*mix(.0012,.0075,clamp((y-.68)/.32,0.,1.));
+ vec2 d=vec2(0.);
+ d.x+=sin(y*140.-T*1.7+sin(x*9.+T*.6)*2.)*amp*.6+(fbm(vec2(x*6.,y*32.)+T*vec2(.18,.06))-.5)*amp*2.2;
+ d.y+=sin(x*38.+T*1.3+y*70.)*amp*.45;
+ float sky=(1.-smoothstep(.20,.30,y))*free;
+ d.x+=(fbm(vec2(x*3.-T*.025,y*4.))-.5)*.014*sky;
+ d.y+=(fbm(vec2(x*2.+T*.02,y*5.+3.))-.5)*.008*sky;
+ vec3 c=texture2D(t,u+d).rgb;
+ float s=fbm(vec2(x*2.2-T*.035,y*2.6+T*.01));
+ c*=mix(1.,.9+.2*s,.8*(1.-water*.5));
+ float lum=dot(c,vec3(.3,.59,.11));
+ float g=n(vec2(x*260.,y*95.)+T*vec2(.7,1.5))*n(vec2(x*120.,y*60.)-T*vec2(.4,.9));
+ float sp=smoothstep(.55,.85,g)*water*smoothstep(.45,.9,lum);
+ float sunCol=exp(-pow((x-.59)*7.,2.));
+ c+=vec3(1.,.96,.88)*sp*(.8+1.2*sunCol);
+ vec2 sd=(u-vec2(.59,.62))*vec2(${R.toFixed(4)},1.);
+ c+=vec3(1.,.82,.55)*(.12+.05*sin(T*1.2))*exp(-dot(sd,sd)*55.);
+ vec2 L=(u-vec2(.435,.352))*vec2(${R.toFixed(4)},1.);
+ float r=length(L), a=atan(L.y,L.x), dir=T*.7;
+ float beam=pow(max(0.,cos(a-dir)),80.)*exp(-r*2.2)*smoothstep(.0,.015,r)*(.55+.45*sin(dir));
+ c+=vec3(1.,.93,.7)*beam*.9*free;
+ c+=vec3(1.,.9,.6)*exp(-r*r*2500.)*(.6+.4*sin(T*6.));
+ vec2 v=u-.5; c*=1.-dot(v,v)*.35;
+ gl_FragColor=vec4(c,1.);}`;
+
+let prog,tex,Tloc,running=false,t0=performance.now();
+function sh(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(s);return s}
+function init(img){
+  prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
+  const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const pl=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(pl);gl.vertexAttribPointer(pl,2,gl.FLOAT,false,0,0);
+  tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tex);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);
+  [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  Tloc=gl.getUniformLocation(prog,'T');
+}
+function frame(now){
+  gl.uniform1f(Tloc,(now-t0)/1000);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  if(running&&!reduce)requestAnimationFrame(frame);
+}
+layout();addEventListener('resize',layout);window.heroLayout=layout;
+if(gl){
+  const img=new Image();img.onload=()=>{try{init(img);fb.style.visibility='hidden';running=true;requestAnimationFrame(frame);
+    new IntersectionObserver(es=>{const v=es[0].isIntersecting;if(v&&!running){running=true;requestAnimationFrame(frame)}running=v}).observe(hero);
+  }catch(e){cv.style.display='none';fb.style.visibility='visible'}};img.src='home.webp';
+}else cv.style.display='none';
+
+// parallax suave do cenário
+setTimeout(()=>hero.classList.remove('intro'),2700);
+
+// placas e botão levam à bilheteria
+
+// guichê aparece ao rolar
+const rv=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');rv.unobserve(e.target)}}),{threshold:.2});
+document.querySelectorAll('.reveal').forEach(el=>rv.observe(el));
+}
+</script>
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+$('signs').innerHTML=FAIXAS.map((f,k)=>{
+  const t=f.y/924-.023,x0=.164-.06*.174,w=.174*1.12,y0=t-.08*.046,h=.046*1.16;
+  const pos='';
+  
+  return `<button type="button" class="sign" style="top:${(t*100).toFixed(2)}%" aria-label="${esc(f.nome)}: ${esc(f.mensagem||'mensagem em breve')}"><span class="art" style="background-size:${(100/w).toFixed(2)}% ${(100/h).toFixed(2)}%;background-position:${(x0/(1-w)*100).toFixed(3)}% ${(y0/(1-h)*100).toFixed(3)}%"></span><span class="tip${pos}" aria-hidden="true"><img src="${f.sticker}" alt="" loading="lazy"><small>Faixa ${String(k+1).padStart(2,'0')}</small><b>${esc(f.nome)}</b>${f.feat?`<span class="cr">feat. ${esc(f.feat)}</span>`:''}<span class="tx${f.mensagem?'':' vazio'}">${esc(f.mensagem||'A mensagem desta faixa chega em breve.')}</span></span></button>`}).join('');
+// etiqueta sempre dentro da tela
+const encaixa=s=>{const t=s.querySelector('.tip');if(!t)return;const h=t.offsetHeight,r=s.getBoundingClientRect(),hr=$('hero').getBoundingClientRect();
+  const lo=Math.max(hr.top,0)+12,hi=Math.min(hr.bottom,innerHeight)-12-h;let y=r.top+r.height/2-h/2;y=Math.max(lo,Math.min(y,hi));t.style.top=(y-r.top)+'px'};
+$('signs').addEventListener('mouseover',e=>{const s=e.target.closest('.sign');if(s)encaixa(s)});
+$('signs').addEventListener('focusin',e=>{const s=e.target.closest('.sign');if(s)encaixa(s)});
+// celular (sem mouse): tocar na placa abre a biografia numa folha embaixo
+const sheet=$('sheet'),toque=matchMedia('(hover:none),(max-width:600px)');
+const fecha=()=>{sheet.classList.remove('on');document.querySelectorAll('.sign.ativa').forEach(x=>x.classList.remove('ativa'))};
+$('signs').addEventListener('click',e=>{const s=e.target.closest('.sign');if(!s||!toque.matches)return;
+  if(s.classList.contains('ativa')){fecha();return}
+  fecha();s.classList.add('ativa');$('sheetc').innerHTML=s.querySelector('.tip').innerHTML;sheet.hidden=false;void sheet.offsetWidth;sheet.classList.add('on')});
+sheet.querySelector('.x').addEventListener('click',fecha);
+document.addEventListener('click',e=>{if(!e.target.closest('.sign')&&!e.target.closest('#sheet'))fecha()});
+// páginas: praia (início) e bilheteria
+const hero=$('hero'),bil=$('bilheteria');
+function pagina(qual){
+  const naBil=qual==='bilheteria';
+  if(naBil===!bil.hidden)return;
+  bil.hidden=!naBil;hero.hidden=naBil;
+  const alvos=naBil?bil.querySelectorAll(':scope>.wrap'):[hero];alvos.forEach(a=>{a.classList.remove('pagein');void a.offsetWidth;a.classList.add('pagein')});
+  scrollTo(0,0);
+  if(naBil)setTimeout(()=>{if(!$('nome').value.trim())$('nome').focus({preventScroll:true})},400);
+  else{hero.classList.add('volta');window.heroLayout&&window.heroLayout()}
+}
+const rota=()=>pagina(location.hash.slice(1)==='bilheteria'?'bilheteria':'inicio');
+addEventListener('hashchange',rota);rota();
+}
+</script>
+<script>
+{
+const R=1643/924,bil=document.getElementById('bilheteria'),box=document.getElementById('box2'),cv=document.getElementById('gl2'),fb=document.getElementById('fb2');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const gl=cv.getContext('webgl',{premultipliedAlpha:false});
+function layout(){const vw=innerWidth,vh=innerHeight;const W=Math.max(vw,vh*R),H=W/R;
+  const left=Math.max(vw-W,Math.min(0,(vw-W)/2+(vw<700?-.06*W:0)));
+  Object.assign(box.style,{width:W+'px',height:H+'px',left:left+'px',top:((vh-H)/2)+'px'});
+  const d=Math.min(devicePixelRatio||1,1.5,2600/W);cv.width=Math.round(W*d);cv.height=Math.round(H*d);if(gl)gl.viewport(0,0,cv.width,cv.height)}
+const VS='attribute vec2 p;varying vec2 uv;void main(){uv=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}';
+const FS=`precision mediump float;varying vec2 uv;uniform sampler2D t;uniform float T;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<4;i++){s+=a*n(p);p*=2.03;a*=.5;}return s;}
+float box(vec2 u,vec4 r,float f){return smoothstep(r.x-f,r.x+f,u.x)*(1.-smoothstep(r.z-f,r.z+f,u.x))*smoothstep(r.y-f,r.y+f,u.y)*(1.-smoothstep(r.w-f,r.w+f,u.y));}
+void main(){
+ vec2 u=uv;float x=u.x,y=u.y;
+ float logo=box(u,vec4(.8,0.,1.,.27),.01);
+ float gust=.65+.35*sin(T*.45)+.15*sin(T*1.3);
+ vec2 d=vec2(0.);
+ float copa=(1.-smoothstep(.24,.31,y))*(1.-smoothstep(.66,.73,x))*(1.-logo)+box(u,vec4(-.1,.2,.1,.42),.02);
+ copa=clamp(copa,0.,1.);
+ d+=vec2(sin(T*1.2+y*9.+x*6.),cos(T*.95+x*7.+y*4.))*.0032*copa*gust;
+ d+=(vec2(fbm(u*14.+T*.3),fbm(u*14.-T*.25))-.5)*.004*copa;
+ float plantas=(1.-smoothstep(.29,.35,x))*smoothstep(.55,.62,y)+box(u,vec4(.88,.82,1.1,1.1),.02);
+ plantas=clamp(plantas,0.,1.);
+ d.x+=sin(T*1.5+y*14.+x*3.)*.003*plantas*gust*smoothstep(1.,.6,y);
+ float ceu=smoothstep(.6,.66,x)*(1.-smoothstep(.83,.87,x))*(1.-smoothstep(.43,.5,y))*(1.-logo)*(1.-copa);
+ d.x+=(fbm(vec2(x*3.-T*.03,y*4.))-.5)*.012*ceu;d.y+=(fbm(vec2(x*2.+T*.02,y*5.+3.))-.5)*.006*ceu;
+ float barco=box(u,vec4(.405,.715,.585,.83),.015);
+ float praiaY=mix(.79,.875,clamp((x-.3)/.7,0.,1.));
+ float agua=smoothstep(.632,.66,y)*(1.-smoothstep(praiaY-.012,praiaY+.012,y))*(1.-barco)*(1.-plantas);
+ float amp=agua*mix(.001,.006,clamp((y-.64)/.2,0.,1.));
+ d.x+=sin(y*150.-T*1.8+sin(x*9.+T*.6)*2.)*amp*.6+(fbm(vec2(x*6.,y*32.)+T*vec2(.18,.06))-.5)*amp*2.;
+ d.y+=sin(x*36.+T*1.2+y*70.)*amp*.45;
+ float onda=smoothstep(praiaY-.05,praiaY,y)*(1.-smoothstep(praiaY,praiaY+.02,y))*step(.3,x);
+ d.y+=sin(T*.9+x*3.)*.006*onda;
+ d.y+=sin(T*1.4)*.0022*barco;d.y+=(x-.5)*sin(T*1.4+1.2)*.012*barco;d.x+=sin(T*.7)*.001*barco;
+ vec3 c=texture2D(t,u+d).rgb;
+ float s=fbm(vec2(x*2.2-T*.03,y*2.6+T*.01));c*=mix(1.,.92+.16*s,.7);
+ float lum=dot(c,vec3(.3,.59,.11));
+ float g=n(vec2(x*260.,y*95.)+T*vec2(.7,1.5))*n(vec2(x*120.,y*60.)-T*vec2(.4,.9));
+ float sol=exp(-pow((x-.735)*6.,2.));
+ c+=vec3(1.,.95,.82)*smoothstep(.55,.85,g)*agua*smoothstep(.4,.85,lum)*(.7+1.6*sol);
+ c+=vec3(1.,.9,.75)*onda*(.06+.06*sin(T*.9+x*3.));
+ vec2 sd=(u-vec2(.735,.555))*vec2(${R.toFixed(4)},1.);
+ c+=vec3(1.,.83,.55)*(.16+.06*sin(T*1.1))*exp(-dot(sd,sd)*40.);
+ float raios=pow(max(0.,sin(atan(sd.y,sd.x)*14.+T*.15)),6.)*exp(-length(sd)*3.)*.08;c+=vec3(1.,.88,.6)*raios*(1.-copa);
+ vec2 L=(u-vec2(.578,.432))*vec2(${R.toFixed(4)},1.);
+ float r=length(L),a=atan(L.y,L.x),dir=T*.7;
+ c+=vec3(1.,.93,.7)*pow(max(0.,cos(a-dir)),80.)*exp(-r*2.4)*smoothstep(0.,.012,r)*(.55+.45*sin(dir))*.8*(1.-copa);
+ c+=vec3(1.,.9,.6)*exp(-r*r*3000.)*(.6+.4*sin(T*6.));
+ float luz=pow(max(0.,sin((x*1.3-y)*18.+T*.2)),8.)*(1.-smoothstep(.2,.7,y))*.05;c+=vec3(1.,.95,.8)*luz;
+ vec2 v=u-.5;c*=1.-dot(v,v)*.3;
+ gl_FragColor=vec4(c,1.);}`;
+let prog,Tl,running=false,pronto=false;const t0=performance.now();
+function sh(ty,src){const s=gl.createShader(ty);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(s);return s}
+function init(img){prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
+  const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
+  const pl=gl.getAttribLocation(prog,'p');gl.enableVertexAttribArray(pl);gl.vertexAttribPointer(pl,2,gl.FLOAT,false,0,0);
+  const tx=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,tx);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,img);
+  [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T].forEach(k=>gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE));
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);Tl=gl.getUniformLocation(prog,'T');pronto=true}
+function frame(now){if(!running)return;gl.uniform1f(Tl,(now-t0)/1000);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);if(!reduce)requestAnimationFrame(frame)}
+function liga(){const v=!bil.hidden;if(v){layout()}if(v&&pronto&&!running){running=true;requestAnimationFrame(frame)}if(!v)running=false}
+addEventListener('resize',()=>{if(!bil.hidden){layout();if(reduce&&pronto)frame(performance.now())}});
+new MutationObserver(liga).observe(bil,{attributes:true,attributeFilter:['hidden']});
+layout();
+if(gl){const img=new Image();img.onload=()=>{try{init(img);fb.style.visibility='hidden';liga()}catch(e){cv.style.display='none'}};img.src='bilheteria.webp'}else cv.style.display='none';
+}
+</script>
+<script>
+{
+/* ===== Link do site que vai ser compartilhado. Quando o site tiver endereço próprio, troque aqui. ===== */
+const SITE_URL='https://claude.ai/artifact/XavWwPgTNAtkxREtVurY1j';
+/* ======================================================================================================= */
+const $=id=>document.getElementById(id),m=$('shm'),msg=$('shmsg');
+const url=()=>/^https?:/.test(location.href)&&!/claudeusercontent|claude\.ai|localhost/.test(location.host)?location.origin+location.pathname:SITE_URL;
+const texto=()=>'Peguei minha passagem pra viagem do álbum Eu o Mar e Ela ✈ Destino: '+$('faixa').textContent+'. Pegue a sua: ';
+let ultimoFoco=null;
+function abre(){ultimoFoco=document.activeElement;$('shprev').src=$('card').src;msg.textContent='';$('shlink').hidden=true;
+  $('shwa').href='https://wa.me/?text='+encodeURIComponent(texto()+url());m.hidden=false;document.documentElement.classList.add('lock');setTimeout(()=>$('shx').focus(),30)}
+function fecha(){m.hidden=true;document.documentElement.classList.remove('lock');ultimoFoco&&ultimoFoco.focus&&ultimoFoco.focus()}
+$('compartilhar').addEventListener('click',abre);$('shx').addEventListener('click',fecha);
+m.addEventListener('click',e=>{if(e.target===m)fecha()});addEventListener('keydown',e=>{if(e.key==='Escape'&&!m.hidden)fecha()});
+async function arquivo(){const r=await fetch($('card').src);const b=await r.blob();return new File([b],$('baixar').download||'cartao-postal.png',{type:'image/png'})}
+async function copiaLink(){const u=url();
+  try{await navigator.clipboard.writeText(u);msg.textContent='Link copiado! É só colar onde quiser.'}
+  catch(e){const i=$('shlink');i.hidden=false;i.value=u;i.focus();i.select();msg.textContent='Copie o link abaixo (segure o dedo ou Ctrl+C).'}}
+const destinos={status:'o WhatsApp e depois "Meu status"',direct:'o Instagram e depois "Direct"',feed:'o Instagram e depois "Feed"'};
+const manual={status:'Abra o WhatsApp → Status → câmera/galeria e escolha a imagem do cartão.',direct:'Abra o Instagram → Direct → abra a conversa e envie a imagem do cartão.',feed:'Abra o Instagram → + → Post e escolha a imagem do cartão.'};
+async function compartilhaImagem(a){
+  try{const f=await arquivo();
+    if(navigator.canShare&&navigator.canShare({files:[f]})){
+      msg.textContent='Na lista que abrir, toque em '+destinos[a]+'.';
+      await navigator.share({files:[f],text:texto()+url()});msg.textContent='Prontinho! Boa viagem ✈';return}
+  }catch(e){if(e&&e.name==='AbortError'){msg.textContent='';return}}
+  // sem compartilhamento direto (computador, ou dentro do Claude): salva a imagem e explica o caminho
+  $('baixar').click();
+  msg.textContent='Salvei a imagem do cartão. '+manual[a]+' Dica: o link do site já pode ir junto, use "Copiar link".';
+}
+m.querySelectorAll('.shgrid button').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.a;a==='link'?copiaLink():compartilhaImagem(a)}));
+}
+</script>
+</body>
+</html>
