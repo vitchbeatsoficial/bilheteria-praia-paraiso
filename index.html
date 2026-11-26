@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="home">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,7 +47,10 @@ button.ghost,a.ghost{background:transparent;color:var(--txt);border-color:rgba(2
 .note{font-size:13px;opacity:.6;text-align:center;margin-top:36px}
 [hidden]{display:none!important}
 .hero{position:relative;height:100svh;min-height:520px;overflow:hidden;background:#cfe3e6}
-@media(max-width:600px){.hero{background:linear-gradient(180deg,#cfe3e6 0,#2fb3c6 55%,#14808f)}}
+.hero::before{content:"";position:absolute;inset:-60px;background:url(home.webp) center/cover;filter:blur(28px) brightness(.9) saturate(1.1)}
+.box.lb{-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+html.home,html.home body{overflow:hidden}
+@media(max-width:600px){.hero::before{display:none}.hero{background:linear-gradient(180deg,#cfe3e6 0,#2fb3c6 55%,#14808f)}}
 .box{position:absolute;transform-origin:center}
 .box canvas,.box img.fb{position:absolute;inset:0;width:100%;height:100%;display:block}
 .intro .box{animation:zoom 2.6s cubic-bezier(.2,.7,.2,1) both}
@@ -405,9 +408,14 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function layout(){
   const vw=hero.clientWidth, vh=hero.clientHeight;
-  let W=Math.max(vw,vh*R), H=W/R, top=Math.min(0,Math.max(vh-0.985*H,(vh-H)/2));
+  // as placas ocupam de 8% a 98,5% da altura da imagem: elas sempre aparecem inteiras
+  const A=.075,B=.985;
+  let W=Math.max(vw,vh*R), H=W/R, top, lb=false;
   if(vw<=600){const ph=document.querySelector('.panel').offsetHeight+28;H=Math.max(vh-ph,vw/R);W=Math.max(H*R,vw);H=W/R;top=0}
-  const left = Math.max(vw-W, Math.min(0, Math.max((vw-W)/2, 10-0.135*W)));
+  else if((B-A)*H>vh){H=vh/(B-A);W=H*R;top=-A*H;lb=W<vw}
+  else{top=Math.min(vh-B*H,Math.max(-A*H,(vh-H)/2));top=Math.max(vh-H,Math.min(0,top))}
+  box.classList.toggle('lb',lb);
+  const left = lb ? (vw-W)/2 : Math.max(vw-W, Math.min(0, Math.max((vw-W)/2, 10-0.135*W)));
   Object.assign(box.style,{width:W+'px',height:H+'px',left:left+'px',top:top+'px'});
   const d=Math.min(devicePixelRatio||1,1.5,2600/W);
   cv.width=Math.round(W*d); cv.height=Math.round(H*d);
@@ -511,7 +519,7 @@ const hero=$('hero'),bil=$('bilheteria');
 function pagina(qual){
   const naBil=qual==='bilheteria';
   if(naBil===!bil.hidden)return;
-  bil.hidden=!naBil;hero.hidden=naBil;
+  bil.hidden=!naBil;hero.hidden=naBil;document.documentElement.classList.toggle('home',!naBil);
   const alvos=naBil?bil.querySelectorAll(':scope>.wrap'):[hero];alvos.forEach(a=>{a.classList.remove('pagein');void a.offsetWidth;a.classList.add('pagein')});
   scrollTo(0,0);
   if(naBil)setTimeout(()=>{if(!$('nome').value.trim())$('nome').focus({preventScroll:true})},400);
