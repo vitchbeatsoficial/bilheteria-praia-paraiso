@@ -194,6 +194,12 @@ a.btn.share,button.share{background:#2b2a27;color:#fffaf0}
  .box:not(.lb)::after{content:"";position:absolute;left:-14px;right:-14px;top:calc(100% - 5px);height:70%;background:url(home.webp) center bottom/100% auto no-repeat;transform:scaleY(-1);filter:blur(5px) saturate(1.05);
   -webkit-mask-image:linear-gradient(0deg,#000 0,rgba(0,0,0,.85) 35%,transparent 100%);mask-image:linear-gradient(0deg,#000 0,rgba(0,0,0,.85) 35%,transparent 100%);pointer-events:none}
 }
+.dica{display:flex;gap:8px;align-items:flex-start;font-size:14px!important;line-height:1.4;background:rgba(231,111,81,.12);border:1px dashed rgba(231,111,81,.6);border-radius:6px;padding:8px 10px;margin:-4px 0 14px!important}
+.dica svg{flex:none;width:20px;height:20px;fill:none;stroke:var(--sun2);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px;animation:nota 1.6s ease-in-out infinite alternate}
+@keyframes nota{to{transform:translateY(-3px) rotate(-8deg)}}
+.d-cel{display:none}
+@media (hover:none),(max-width:600px){.d-pc{display:none}.d-cel{display:inline}}
+@media (prefers-reduced-motion:reduce){.dica svg{animation:none}}
 html.lock{overflow:hidden}
 .booking{min-height:100svh}
 .topbar{padding-top:20px!important;padding-bottom:0!important}.topbar+.wrap{padding-top:12px}
@@ -226,6 +232,7 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
     <p class="k">Álbum · 13 destinos</p>
     <h1>Eu o Mar e Ela</h1>
     <p>Passe na bilheteria, escolha seu destino e leve seu cartão-postal da viagem.</p>
+    <p class="dica"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg><span class="d-pc">Ative o som e <b>passe o mouse nas placas</b> para ouvir uma prévia de cada faixa.</span><span class="d-cel">Ative o som e <b>toque nas placas</b> para ouvir uma prévia de cada faixa.</span></p>
     <a class="btn" href="#bilheteria" id="cta">Ir à bilheteria ✈</a>
   </div>
 </section>
@@ -771,7 +778,7 @@ function toca(i,el){if(!ligado)return;const f=FAIXAS[i];if(!f)return;const a=pla
   atual=a;a.currentTime=0;a.volume=0;el&&el.classList.add('tocando');amb.abaixa(true);
   a.play().then(()=>{if(atual!==a){a.pause();return}rampa(a,VOLUME,FADE);timer=setTimeout(()=>{if(atual===a)para()},DURACAO*1000-FADE)})
    .catch(()=>{if(atual===a){atual=null;el&&el.classList.remove('tocando');amb.abaixa(false)}});}
-function mostra(){btn.setAttribute('aria-pressed',ligado);btn.querySelector('span').textContent=ligado?'Som ligado':'Ativar som';
+function mostra(){document.documentElement.classList.toggle('som-on',ligado);btn.setAttribute('aria-pressed',ligado);btn.querySelector('span').textContent=ligado?'Som ligado':'Ativar som';
   btn.setAttribute('aria-label',ligado?'Desligar o som das prévias':'Ativar o som das prévias das faixas')}
 btn.addEventListener('click',()=>{ligado=!ligado;mostra();if(ligado){amb.destrava();amb.liga()}else{para();amb.desliga()}});
 // se o som já estava ligado na visita anterior, o ambiente começa no primeiro clique/toque/tecla (regra dos navegadores)
