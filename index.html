@@ -901,13 +901,13 @@ function cartao(r,novo){const el=document.createElement('article');el.className=
   ft.append(as,mt);el.append(p,ft);return el}
 async function carrega(){if(!ok||carregando)return;carregando=true;$('mmais').disabled=true;$('mmais').textContent='Carregando…';
   try{const r=await fetch(`${MURAL.URL}/rest/v1/recados?select=nome,texto,faixa,criado_em&order=criado_em.desc&limit=${POR_PAGINA+1}&offset=${offset}`,{headers:{...H(),'Prefer':'count=exact'}});
-    if(!r.ok)throw 0;const lista=await r.json();const tot=(r.headers.get('content-range')||'').split('/')[1];
+    if(!r.ok){let m='';try{const j=await r.json();m=j.code||''}catch(_){}throw new Error(r.status+(m?' '+m:''))}const lista=await r.json();const tot=(r.headers.get('content-range')||'').split('/')[1];
     if(tot&&tot!=='*')$('mtotal').textContent='('+tot+')';
     lista.slice(0,POR_PAGINA).forEach((x,i)=>{const c=cartao(x);c.style.animationDelay=(i*60)+'ms';$('mgrid').append(c)});
     offset+=Math.min(lista.length,POR_PAGINA);
     $('mmais').hidden=lista.length<=POR_PAGINA;
     const vazio=!$('mgrid').children.length;$('mvazio').hidden=!vazio;if(vazio)$('mvazio').textContent='Ainda não tem recados. Seja a primeira pessoa a colar um cartão aqui!';
-  }catch(e){$('mvazio').hidden=false;$('mvazio').textContent='Não consegui carregar os recados agora. Tente de novo daqui a pouco.'}
+  }catch(e){$('mvazio').hidden=false;$('mvazio').textContent='Não consegui carregar os recados agora. Tente de novo daqui a pouco.'+(e&&e.message?' (código: '+e.message+')':'')}
   carregando=false;$('mmais').disabled=false;$('mmais').textContent='Ver mais recados'}
 window.abreMural=()=>{if(!ok){$('mvazio').hidden=false;$('mvazio').textContent='O mural abre em breve!';$('menviar').disabled=true;return}
   if(!carregado){carregado=true;carrega()}};
@@ -920,13 +920,13 @@ $('mf').addEventListener('submit',async e=>{e.preventDefault();if(!ok)return;
   if(texto.length<3){$('merr').textContent='Escreva um recadinho (pelo menos 3 letras).';$('mtexto').focus();return}
   if(Date.now()-ultimoEnvio<60000){$('merr').textContent='Calma! Espere um minutinho para mandar outro recado.';return}
   $('menviar').disabled=true;$('merr').textContent='Colando no mural…';
-  try{const r=await fetch(`${MURAL.URL}/rest/v1/recados`,{method:'POST',headers:{...H(),'Prefer':'return=representation'},body:JSON.stringify({nome,texto,faixa})});
-    if(!r.ok)throw 0;const [novo]=await r.json();
+  try{const r=await fetch(`${MURAL.URL}/rest/v1/recados`,{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({nome,texto,faixa})});
+    if(!r.ok){let m='';try{const j=await r.json();m=j.code||j.message||''}catch(_){}throw new Error(r.status+(m?' '+m:''))}const novo=null;
     ultimoEnvio=Date.now();try{localStorage.setItem('mural-ultimo',ultimoEnvio)}catch(e){}
     $('mvazio').hidden=true;const c=cartao(novo||{nome,texto,faixa,criado_em:new Date()},true);$('mgrid').prepend(c);offset++;
     $('mtexto').value='';$('mcont').textContent='0/500';$('merr').textContent='Recado colado! Valeu por ouvir ♡';
     c.scrollIntoView({behavior:'smooth',block:'center'});
-  }catch(e){$('merr').textContent='Não deu para enviar agora. Tente de novo.'}
+  }catch(e){console.warn('mural',e);$('merr').textContent='Não deu para enviar agora. Tente de novo.'+(e&&e.message?' (código: '+e.message+')':'')}
   $('menviar').disabled=false});
 if(location.hash==='#mural')window.abreMural();
 }
