@@ -234,8 +234,16 @@ a.btn.share,button.share{background:#2b2a27;color:#fffaf0}
 .rec .fx{display:inline-block;margin-top:2px;font-weight:700;color:var(--sun2);opacity:1}
 .rec.novo{box-shadow:0 0 0 3px var(--sun2),0 12px 24px rgba(0,0,0,.35)}
 .mvazio{text-align:center;color:#fffaf0;font:16px "Courier Prime",monospace;text-shadow:0 1px 6px rgba(0,0,0,.6)}
-.mmais{text-align:center;margin:10px 0 30px}
-.mmais .ghost{background:rgba(10,40,48,.35)}
+.pag{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin:18px auto 6px;max-width:900px}
+.pag[hidden]{display:none}
+.pg-nums{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.pag button{all:unset;box-sizing:border-box;cursor:pointer;min-width:44px;height:44px;padding:0 10px;display:inline-grid;place-items:center;background:var(--paper);color:var(--ink);border:2px solid #2b2a27;border-radius:6px;font:700 15px "Courier Prime",monospace;box-shadow:0 6px 12px rgba(0,0,0,.25);transition:transform .2s}
+.pag button:hover{transform:translateY(-2px) rotate(-2deg)}
+.pag button:focus-visible{outline:3px solid var(--sun2);outline-offset:2px}
+.pag button[aria-current=page]{background:var(--sun2);color:#fff;border-color:#2b2a27;transform:rotate(-3deg)}
+.pag button:disabled{opacity:.35;cursor:default;transform:none}
+.pag .pg-gap{color:#fffaf0;font:700 15px "Courier Prime",monospace;padding:0 2px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+.pg-info{text-align:center;color:#fffaf0;font:13px "Courier Prime",monospace;opacity:.85;margin:4px 0 36px;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 @media(max-width:600px){.mgrid{columns:1}.rec{transform:none}}
 @media (prefers-reduced-motion:reduce){.mbg,.rec{animation:none}}
 .panel .btn{width:100%}
@@ -377,7 +385,12 @@ a.voltar{background:rgba(255,250,240,.12);border-color:rgba(255,250,240,.6);colo
       <h3 class="mtit" id="mtit">Recados da galera <span id="mtotal"></span></h3>
       <div class="mgrid" id="mgrid"></div>
       <p class="mvazio" id="mvazio" hidden></p>
-      <div class="mmais"><button type="button" class="ghost" id="mmais" hidden>Ver mais recados</button></div>
+      <nav class="pag" id="pag" aria-label="Páginas de recados" hidden>
+        <button type="button" class="pg-seta" id="pgant" aria-label="Página anterior">←</button>
+        <span class="pg-nums" id="pgnums"></span>
+        <button type="button" class="pg-seta" id="pgprox" aria-label="Próxima página">→</button>
+      </nav>
+      <p class="pg-info" id="pginfo"></p>
     </section>
   </div>
 </main>
@@ -884,12 +897,12 @@ document.addEventListener('visibilitychange',()=>{
    Cole aqui os dados do seu projeto Supabase (Project Settings → API):
    URL  = Project URL            KEY = chave "anon public"            */
 const MURAL={URL:'https://prvfhuqhzlvzwlqpkklo.supabase.co', KEY:'sb_publishable_G9ZYXPh5aV28Z--NTFjIBA_3H8PlVAQ'};
-const POR_PAGINA=6;
+const POR_PAGINA=9; // recados por página
 /* =============================================================== */
 const $=id=>document.getElementById(id);
 const ok=MURAL.URL&&MURAL.KEY;
 const H=()=>Object.assign({'apikey':MURAL.KEY,'Content-Type':'application/json'},MURAL.KEY.startsWith('eyJ')?{'Authorization':'Bearer '+MURAL.KEY}:{});
-let offset=0,carregado=false,carregando=false;
+let pagAtual=1,totalPag=1,carregado=false,carregando=false;
 $('mfaixa').innerHTML+=FAIXAS.map(f=>`<option>${f.nome}</option>`).join('');
 const giro=()=>((Math.random()*2.4-1.2).toFixed(2))+'deg';
 const data=d=>{try{return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})}catch(e){return ''}};
@@ -899,19 +912,33 @@ function cartao(r,novo){const el=document.createElement('article');el.className=
   const mt=document.createElement('span');mt.className='meta2';mt.textContent=data(r.criado_em);
   if(r.faixa){const fx=document.createElement('span');fx.className='fx';fx.textContent='♪ '+r.faixa;mt.append(document.createElement('br'),fx)}
   ft.append(as,mt);el.append(p,ft);return el}
-async function carrega(){if(!ok||carregando)return;carregando=true;$('mmais').disabled=true;$('mmais').textContent='Carregando…';
-  try{const r=await fetch(`${MURAL.URL}/rest/v1/recados?select=nome,texto,faixa,criado_em&order=criado_em.desc&limit=${POR_PAGINA+1}&offset=${offset}`,{headers:{...H(),'Prefer':'count=exact'}});
-    if(!r.ok){let m='';try{const j=await r.json();m=j.code||''}catch(_){}throw new Error(r.status+(m?' '+m:''))}const lista=await r.json();const tot=(r.headers.get('content-range')||'').split('/')[1];
-    if(tot&&tot!=='*')$('mtotal').textContent='('+tot+')';
-    lista.slice(0,POR_PAGINA).forEach((x,i)=>{const c=cartao(x);c.style.animationDelay=(i*60)+'ms';$('mgrid').append(c)});
-    offset+=Math.min(lista.length,POR_PAGINA);
-    $('mmais').hidden=lista.length<=POR_PAGINA;
-    const vazio=!$('mgrid').children.length;$('mvazio').hidden=!vazio;if(vazio)$('mvazio').textContent='Ainda não tem recados. Seja a primeira pessoa a colar um cartão aqui!';
+function paginador(){
+  const nums=[];const add=n=>{if(!nums.includes(n)&&n>=1&&n<=totalPag)nums.push(n)};
+  add(1);for(let n=pagAtual-1;n<=pagAtual+1;n++)add(n);add(totalPag);nums.sort((a,b)=>a-b);
+  const box=$('pgnums');box.textContent='';let ant=0;
+  for(const n of nums){if(n-ant>1){const g=document.createElement('span');g.className='pg-gap';g.textContent='…';box.append(g)}
+    const bt=document.createElement('button');bt.type='button';bt.textContent=n;bt.setAttribute('aria-label','Página '+n);
+    if(n===pagAtual)bt.setAttribute('aria-current','page');bt.addEventListener('click',()=>vaiPara(n));box.append(bt);ant=n}
+  $('pgant').disabled=pagAtual<=1;$('pgprox').disabled=pagAtual>=totalPag;$('pag').hidden=totalPag<=1;
+  $('pginfo').textContent=totalPag>1?'Página '+pagAtual+' de '+totalPag:''}
+async function carrega(p=1,rolar=false){if(!ok||carregando)return;carregando=true;$('mgrid').style.opacity=.5;
+  try{const off=(p-1)*POR_PAGINA;
+    const r=await fetch(`${MURAL.URL}/rest/v1/recados?select=nome,texto,faixa,criado_em&order=criado_em.desc&limit=${POR_PAGINA}&offset=${off}`,{headers:{...H(),'Prefer':'count=exact'}});
+    if(!r.ok){let m='';try{const j=await r.json();m=j.code||''}catch(_){}throw new Error(r.status+(m?' '+m:''))}
+    const lista=await r.json();const tot=+((r.headers.get('content-range')||'').split('/')[1])||0;
+    $('mtotal').textContent=tot?'('+tot+')':'';
+    totalPag=Math.max(1,Math.ceil(tot/POR_PAGINA));pagAtual=Math.min(p,totalPag);
+    $('mgrid').textContent='';lista.forEach((x,i)=>{const c=cartao(x);c.style.animationDelay=(i*50)+'ms';$('mgrid').append(c)});
+    paginador();
+    const vazio=!lista.length;$('mvazio').hidden=!vazio;if(vazio)$('mvazio').textContent='Ainda não tem recados. Seja a primeira pessoa a colar um cartão aqui!';
+    if(rolar)$('mtit').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){$('mvazio').hidden=false;$('mvazio').textContent='Não consegui carregar os recados agora. Tente de novo daqui a pouco.'+(e&&e.message?' (código: '+e.message+')':'')}
-  carregando=false;$('mmais').disabled=false;$('mmais').textContent='Ver mais recados'}
+  carregando=false;$('mgrid').style.opacity=''}
+const vaiPara=n=>carrega(n,true);
 window.abreMural=()=>{if(!ok){$('mvazio').hidden=false;$('mvazio').textContent='O mural abre em breve!';$('menviar').disabled=true;return}
-  if(!carregado){carregado=true;carrega()}};
-$('mmais').addEventListener('click',carrega);
+  if(!carregado){carregado=true;carrega(1)}};
+$('pgant').addEventListener('click',()=>vaiPara(pagAtual-1));
+$('pgprox').addEventListener('click',()=>vaiPara(pagAtual+1));
 $('mtexto').addEventListener('input',()=>{$('mcont').textContent=$('mtexto').value.length+'/500'});
 let ultimoEnvio=0;try{ultimoEnvio=+localStorage.getItem('mural-ultimo')||0}catch(e){}
 $('mf').addEventListener('submit',async e=>{e.preventDefault();if(!ok)return;
@@ -923,7 +950,7 @@ $('mf').addEventListener('submit',async e=>{e.preventDefault();if(!ok)return;
   try{const r=await fetch(`${MURAL.URL}/rest/v1/recados`,{method:'POST',headers:{...H(),'Prefer':'return=minimal'},body:JSON.stringify({nome,texto,faixa})});
     if(!r.ok){let m='';try{const j=await r.json();m=j.code||j.message||''}catch(_){}throw new Error(r.status+(m?' '+m:''))}const novo=null;
     ultimoEnvio=Date.now();try{localStorage.setItem('mural-ultimo',ultimoEnvio)}catch(e){}
-    $('mvazio').hidden=true;const c=cartao(novo||{nome,texto,faixa,criado_em:new Date()},true);$('mgrid').prepend(c);offset++;
+    $('mvazio').hidden=true;if(pagAtual!==1)await carrega(1);const c=cartao(novo||{nome,texto,faixa,criado_em:new Date()},true);$('mgrid').prepend(c);if($('mgrid').children.length>POR_PAGINA)$('mgrid').lastElementChild.remove();
     $('mtexto').value='';$('mcont').textContent='0/500';$('merr').textContent='Recado colado! Valeu por ouvir ♡';
     c.scrollIntoView({behavior:'smooth',block:'center'});
   }catch(e){console.warn('mural',e);$('merr').textContent='Não deu para enviar agora. Tente de novo.'+(e&&e.message?' (código: '+e.message+')':'')}
